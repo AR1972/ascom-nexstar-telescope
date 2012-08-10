@@ -228,6 +228,12 @@ namespace ASCOM.NexStar
             ScopeGpsThread.GpsEventLinkState += new EventHandler<EventArgs<int>>(GpsLinkReciever);
             ScopeEventConnected += new EventHandler<EventArgs<bool>>(ScopeConnectReciever);
             Scope.EventPropertyChanged += new EventHandler<EventArgs<string, string>>(UpdateProfileReciever);
+            AppDomain.CurrentDomain.ProcessExit += new System.EventHandler(CurrentDomain_ProcessExit);
+        }
+
+        static void CurrentDomain_ProcessExit(object sender, EventArgs e)
+        {
+            ScopeConnect(false);
         }
 
         public static bool ScopeConnect(bool Connect)

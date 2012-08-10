@@ -98,17 +98,7 @@ namespace ASCOM.NexStar
 
         ~Telescope()
         {
-            Common.Log.LogMessage(Common.DriverId, "~Telescope() : called");
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool Disposing)
-        {
-            if (Disposing)
-            {
-                Common.ScopeConnect(false);
-            }
+            Common.Log.LogMessage(Common.DriverId, "~Telescope()");
         }
 
         #region ASCOM Registration
@@ -259,7 +249,6 @@ namespace ASCOM.NexStar
         #region public properties and methods
         public void Dispose()
         {
-            Dispose(false);
         }
 
         public bool Connected
