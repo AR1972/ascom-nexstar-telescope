@@ -233,6 +233,7 @@ namespace ASCOM.NexStar
 
         static void CurrentDomain_ProcessExit(object sender, EventArgs e)
         {
+            Log.LogMessage(DriverId, "ProcessExit()");
             ScopeConnect(false);
         }
 
@@ -241,10 +242,11 @@ namespace ASCOM.NexStar
             Log.LogMessage(DriverId, "ScopeConnect(" + Connect.ToString() + ")");
             if (Connect == true)
             {
+                /* stop the reconnecting thread */
+                Scope.Reconnecting = false;
                 /* connect to scope */
                 if (Scope.isConnected == false)
                 {
-                    Scope.Disconnecting = false;
                     /* create threads */
                     HC = new Thread(HcThread);
                     GP = new Thread(GuidePerfThread);
@@ -303,7 +305,6 @@ namespace ASCOM.NexStar
                 }
                 else
                 {
-                    Scope.Disconnecting = false;
                     Scope.isConnected = true;
                     return true;
                 }
@@ -313,8 +314,6 @@ namespace ASCOM.NexStar
                 /* disconnect from scope */
                 if (Scope.isConnected == true && ScopeSerialPort != null)
                 {
-                    /* signal we have started disconnecting */
-                    Scope.Disconnecting = true;
                     /* this should stop the reconnect thread */
                     Scope.Reconnecting = false;
                     AbortSlew();
@@ -345,7 +344,6 @@ namespace ASCOM.NexStar
                 }
                 else
                 {
-                    Scope.Disconnecting = true;
                     Scope.isConnected = false;
                     return true;
                 }
@@ -2012,7 +2010,7 @@ namespace ASCOM.NexStar
                             Log.LogMessage(DriverId, "ScopeReconnect() : " + Ex.Message);
                             Thread.Sleep(2000);
                         }
-                        if (RxBuffer[0] == (byte)'A' || Scope.Disconnecting)
+                        if (RxBuffer[0] == (byte)'A' || !Scope.Reconnecting)
                         {
                             /* quit the loop if ping reply, or user clicked disconnect */
                             break;
@@ -2022,8 +2020,6 @@ namespace ASCOM.NexStar
                 if (RxBuffer[0] != (byte)'A')
                 {
                     /* failure! everything is a mess, try to cleanup */
-                    /* prevent connected from getting called */
-                    Scope.Disconnecting = true;
                     /* cause threads to quit, prevent any further serial port comunication */
                     Scope.isConnected = false;
                     /* log the error and throw an exception */
