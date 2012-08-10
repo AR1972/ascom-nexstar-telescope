@@ -56,15 +56,6 @@ namespace ASCOM.NexStar
             GuideEnabled = true;
         }
 
-        ~PulseGuide()
-        {
-            Stop();
-            RaTimer.Dispose();
-            DecTimer.Dispose();
-            RaTimer = null;
-            DecTimer = null;
-        }
-
         public delegate void EventHandler(object sender, EventArgs<object, object, object> e);
         public event EventHandler<EventArgs<double, double, double>> RaDiffEvent;
         public event EventHandler<EventArgs<double, double, double>> DecDiffEvent;
