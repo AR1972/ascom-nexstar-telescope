@@ -52,7 +52,6 @@ namespace ASCOM.NexStar
         public static AxisRates[] AxisRates = null;
         public static AxisRates[] GuideRates = null;
         public static DriveRates TrackingRate = DriveRates.driveSidereal;
-        public static bool Disconnecting = false;
         /* property changed event */
         public delegate void EventHandler(object sender, EventArgs<object, object> e);
         public static event EventHandler<EventArgs<string, string>> EventPropertyChanged;
