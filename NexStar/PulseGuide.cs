@@ -137,7 +137,7 @@ namespace ASCOM.NexStar
                     }
                     break;
                 default:
-                    Trace.TraceError(Common.DriverId + ": Guide() : invalid guide direction " + Direction.ToString());
+                    Common.Log.LogMessage(Common.DriverId, "Guide() : invalid guide direction " + Direction.ToString());
                     throw new ASCOM.InvalidValueException(Common.DriverId + ": Guide() : invalid guide direction " + Direction.ToString());
             }
             // guide Dec

@@ -95,7 +95,7 @@ namespace ASCOM.NexStar
             }
             catch (Exception Ex)
             {
-                Trace.TraceError("Open() failed " + Ex.Message);
+                Common.Log.LogMessage(Common.DriverId, "Open() failed " + Ex.Message);
                 throw;
             }
         }
@@ -128,7 +128,7 @@ namespace ASCOM.NexStar
             }
             catch (Exception Ex)
             {
-                Trace.TraceError("TransmitBinary() failed " + Ex.Message);
+                Common.Log.LogMessage(Common.DriverId, "TransmitBinary() failed " + Ex.Message);
                 throw;
             }
         }
@@ -160,7 +160,7 @@ namespace ASCOM.NexStar
             }
             catch (Exception Ex)
             {
-                Trace.TraceError("ReceiveCountedBinary() failed " + Ex.Message);
+                Common.Log.LogMessage(Common.DriverId, "ReceiveCountedBinary() failed " + Ex.Message);
                 throw;
             }
         }
@@ -192,7 +192,7 @@ namespace ASCOM.NexStar
             }
             catch (Exception Ex)
             {
-                Trace.TraceError("ReceiveTerminatedBinary() failed " + Ex.Message);
+                Common.Log.LogMessage(Common.DriverId, "ReceiveTerminatedBinary() failed " + Ex.Message);
                 throw;
             }
         }
@@ -212,7 +212,7 @@ namespace ASCOM.NexStar
             }
             catch (Exception Ex)
             {
-                Trace.TraceError("ClearBuffers() failed " + Ex.Message);
+                Common.Log.LogMessage(Common.DriverId, "ClearBuffers() failed " + Ex.Message);
                 throw;
             }
         }

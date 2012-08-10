@@ -98,9 +98,12 @@ namespace ASCOM.NexStar
 
         ~Telescope()
         {
+            Common.Log.LogMessage(Common.DriverId, "~Telescope() : called");
             if (Scope.isConnected && !Scope.Disconnecting)
             {
-                Common.ScopeConnect(false);
+                Common.Log.LogMessage(Common.DriverId, "~Telescope() : cleaning up");
+                Common.AbortSlew();
+                Common.SetTracking(false);
             }
         }
 
@@ -252,10 +255,6 @@ namespace ASCOM.NexStar
         #region public properties and methods
         public void Dispose()
         {
-            if (Scope.isConnected && !Scope.Disconnecting)
-            {
-                Common.ScopeConnect(false);
-            }
         }
 
         public bool Connected

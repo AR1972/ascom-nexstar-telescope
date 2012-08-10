@@ -201,6 +201,7 @@ namespace ASCOM.NexStar
         private static Thread GP = null;
         private static Form GuidePerf = null;
         private static Thread GotoWatcher = null;
+        internal static TraceLogger Log = null;
         /* events */
         private delegate void EventHandler(object sender, EventArgs<object> e);
         private static event EventHandler<EventArgs<bool>> ScopeEventConnected;
@@ -212,6 +213,10 @@ namespace ASCOM.NexStar
             ScopeGpsThread = new GpsThread();
             SyncRoot = new object();
             ScopePulseGuide = new PulseGuide();
+            Log = new TraceLogger();
+            Log.Enabled = true;
+            Log.LogStart(DriverId, "Celestron NexStar Driver");
+            Log.LogFinish("");
             ScopePulseGuide.Enabled = true;
             if (!ScopeProfile.IsRegistered(DriverId))
             {
@@ -227,6 +232,7 @@ namespace ASCOM.NexStar
 
         public static bool ScopeConnect(bool Connect)
         {
+            Log.LogMessage(DriverId, "ScopeConnect(" + Connect.ToString() + ")");
             if (Connect == true)
             {
                 /* connect to scope */
@@ -241,7 +247,7 @@ namespace ASCOM.NexStar
                     {
                         if (port > 0 && port <= 256) /* sanity check on port number */
                         {
-                            Trace.TraceInformation("trying COM" + port.ToString());
+                            Log.LogMessage(DriverId, "ScopeConnect() : trying COM" + port.ToString());
                             try
                             {
                                 ScopeSerialPort = new Serial();
@@ -278,16 +284,16 @@ namespace ASCOM.NexStar
                             }
                             catch (TimeoutException Ex)
                             {
-                                Trace.TraceError(Ex.Message);
+                                Log.LogMessage(DriverId, "ScopeConnect() : " + Ex.Message);
                             }
                             catch (Exception Ex)
                             {
-                                Trace.TraceError(Ex.Message);
+                                Log.LogMessage(DriverId, "ScopeConnect() : " + Ex.Message);
                             }
                         }
                     }
-                    Trace.TraceError(DriverId + ": no scope found");
-                    throw new ASCOM.NotConnectedException(DriverId + ": no scope found");
+                    Log.LogMessage(DriverId, "ScopeConnect() : no scope found");
+                    throw new ASCOM.NotConnectedException(DriverId + "ScopeConnect() : no scope found");
                 }
                 else
                 {
@@ -321,7 +327,7 @@ namespace ASCOM.NexStar
                         }
                         catch (Exception Ex)
                         {
-                            Trace.TraceError("ScopeConnect() " + Ex.Message);
+                            Log.LogMessage(DriverId, "ScopeConnect() : " + Ex.Message);
                         }
                         finally
                         {
@@ -343,6 +349,7 @@ namespace ASCOM.NexStar
         public static bool AbortSlew()
         /* supported from version 1.2 */
         {
+            Log.LogMessage(DriverId, "AbortSlew()");
             if (Scope.isConnected)
             {
                 // stop GOTO slew
@@ -761,7 +768,7 @@ namespace ASCOM.NexStar
                     /* if we are tring to sort out the scope connection */
                     /* we want to ignore the exceptions, and signal the */
                     /* caller that the ping failed                      */
-                    Trace.TraceError("RawEcho() " + Ex.Message);
+                    Log.LogMessage(DriverId, "RawEcho() : " + Ex.Message);
                     return RxBuffer[0] == (byte)'A';
                 }
             }
@@ -772,7 +779,7 @@ namespace ASCOM.NexStar
         {
             if (TxBuffer.Length < 1)
             {
-                Trace.TraceError(DriverId + ": SendSerialPortCommand() : null buffer");
+                Log.LogMessage(DriverId, "SendSerialPortCommand() : null buffer");
                 throw new System.ArgumentNullException(DriverId + ": SendSerialPortCommand() : null buffer");
             }
             if (!Scope.isConnected || Scope.Reconnecting || !RawEcho() && !ScopeReconnect())
@@ -791,13 +798,13 @@ namespace ASCOM.NexStar
             }
             catch (TimeoutException Ex)
             {
-                Trace.TraceError(DriverId + ": SendSerialPortCommand() : " + Ex.Message);
+                Log.LogMessage(DriverId, "SendSerialPortCommand() : " + Ex.Message);
                 RxBuffer = new byte[32];
                 return 0;
             }
             catch (Exception Ex)
             {
-                Trace.TraceError(DriverId + ": SendSerialPortCommand() : " + Ex.Message);
+                Log.LogMessage(DriverId, "SendSerialPortCommand() : " + Ex.Message);
                 throw;
             }
             return 1;
@@ -808,7 +815,7 @@ namespace ASCOM.NexStar
         {
             if (TxBuffer.Length < 1)
             {
-                Trace.TraceError(DriverId + ": SendSerialPortCommand() : null buffer");
+                Log.LogMessage(DriverId, "SendSerialPortCommand() : null buffer");
                 throw new System.ArgumentNullException(DriverId + ": SendSerialPortCommand() : null buffer");
             }
             if (!Scope.isConnected || Scope.Reconnecting || !RawEcho() && !ScopeReconnect())
@@ -827,13 +834,13 @@ namespace ASCOM.NexStar
             }
             catch (TimeoutException Ex)
             {
-                Trace.TraceError(DriverId + ": SendSerialPortCommand() : " + Ex.Message);
+                Log.LogMessage(DriverId, "SendSerialPortCommand() : " + Ex.Message);
                 RxBuffer = new byte[32];
                 return 0;
             }
             catch (Exception Ex)
             {
-                Trace.TraceError(DriverId + ": SendSerialPortCommand() : " + Ex.Message);
+                Log.LogMessage(DriverId, "SendSerialPortCommand() : " + Ex.Message);
                 throw;
             }
             return 1;
@@ -1749,7 +1756,6 @@ namespace ASCOM.NexStar
                 SetTracking(true);
                 Scope.isAligned = isAligned();
                 Scope.AlignmentMode = GetAlignmentMode();
-                ScopeGpsThread.Start();
                 if (Scope.AlignmentMode == AlignmentModes.algPolar ||
                     Scope.AlignmentMode == AlignmentModes.algGermanPolar)
                 {
@@ -1772,6 +1778,9 @@ namespace ASCOM.NexStar
                 GetMotorVersion(out Scope.AzmVersion, out Scope.AltVersion);
                 Scope.Latitude = GetLatitude();
                 Scope.Longitude = GetLongitude();
+                /* speed up connect time by a few seconds by starting GPS after GetLatitude/GetLongitude */
+                ScopeGpsThread.Start();
+                Log.LogMessage(DriverId, "ScopeConnectReciever() : found " + Scope.Name + " " + (Scope.Version >> 8).ToString() + "." + (Scope.Version % 0x100).ToString() + " on COM" + Scope.ConnectedPort.ToString());
                 //HC.Start();
             }
         }
@@ -1994,7 +2003,7 @@ namespace ASCOM.NexStar
                         catch (Exception Ex)
                         {
                             /* swallow all the exceptions */
-                            Trace.TraceError("ScopeReconnect() " + Ex.Message);
+                            Log.LogMessage(DriverId, "ScopeReconnect() : " + Ex.Message);
                             Thread.Sleep(2000);
                         }
                         if (RxBuffer[0] == (byte)'A' || Scope.Disconnecting)
@@ -2012,7 +2021,7 @@ namespace ASCOM.NexStar
                     /* cause threads to quit, prevent any further serial port comunication */
                     Scope.isConnected = false;
                     /* log the error and throw an exception */
-                    Trace.TraceError(DriverId + ": ScopeReconnect() : communication with the telescope failed");
+                    Log.LogMessage(DriverId, "ScopeReconnect() : communication with the telescope failed");
                     throw new ASCOM.NotConnectedException(DriverId + ": ScopeReconnect() : communication with the telescope failed");
                 }
             });
@@ -2163,6 +2172,7 @@ namespace ASCOM.NexStar
 
         public static void SetTracking(bool Tracking)
         {
+            Log.LogMessage(DriverId, "SetTracking(" + Tracking.ToString() + ")");
             switch (Scope.Type)
             {
                 case eScopeType.NEXSTAR_GPS:
@@ -2455,7 +2465,7 @@ namespace ASCOM.NexStar
                         dev = eDeviceId.ALT;
                         break;
                     case TelescopeAxes.axisTertiary:
-                        Trace.TraceError(DriverId + ": MoveAxis() : no axisTertiary");
+                        Log.LogMessage(DriverId, "MoveAxis() : no axisTertiary");
                         throw new ASCOM.InvalidValueException(DriverId + ": MoveAxis() : no axisTertiary");
                 }
                 if (isValidRate(Scope.AxisRates[a], Rate))
@@ -2469,13 +2479,13 @@ namespace ASCOM.NexStar
                 }
                 else
                 {
-                    Trace.TraceError(DriverId + ": MoveAxis() : invalid rate " + Rate.ToString());
+                    Log.LogMessage(DriverId, "MoveAxis() : invalid rate " + Rate.ToString());
                     throw new ASCOM.InvalidValueException(DriverId + ": MoveAxis() : invalid rate " + Rate.ToString());
                 }
             }
             else
             {
-                Trace.TraceError(DriverId + ": MoveAxis() : not NexStar or version < 1.6");
+                Log.LogMessage(DriverId, "MoveAxis() : not NexStar or version < 1.6");
                 throw new ASCOM.MethodNotImplementedException(DriverId + ": MoveAxis() : not NexStar or version < 1.6");
             }
         }
@@ -2497,7 +2507,7 @@ namespace ASCOM.NexStar
         {
             if (Scope.AlignmentMode == AlignmentModes.algAltAz)
             {
-                Trace.TraceError(DriverId + ": PulseGuide() : pulseguide not supported in Alt/Az");
+                Log.LogMessage(DriverId, "PulseGuide() : pulseguide not supported in Alt/Az");
                 throw new ASCOM.NotImplementedException(DriverId + ": PulseGuide() : pulseguide not supported in Alt/Az");
             }
             if (!GP.IsAlive)
@@ -2515,7 +2525,7 @@ namespace ASCOM.NexStar
             {
                 return Alt;
             }
-            Trace.TraceError(DriverId + ": GetAltitude() : not implemented");
+            Log.LogMessage(DriverId, "GetAltitude() : not implemented");
             throw new ASCOM.NotImplementedException(DriverId + ": GetAltitude() : not implemented");
         }
 
@@ -2527,7 +2537,7 @@ namespace ASCOM.NexStar
             {
                 return Azm;
             }
-            Trace.TraceError(DriverId + ": GetAzimuth() : not implemented");
+            Log.LogMessage(DriverId, "GetAzimuth() : not implemented");
             throw new ASCOM.NotImplementedException(DriverId + ": GetAzimuth() : not implemented");
         }
 
@@ -2539,7 +2549,7 @@ namespace ASCOM.NexStar
             {
                 return Dec;
             }
-            Trace.TraceError(DriverId + ": GetDeclination() : not implemented");
+            Log.LogMessage(DriverId, ": GetDeclination() : not implemented");
             throw new ASCOM.NotImplementedException(DriverId + ": GetDeclination() : not implemented");
         }
 
@@ -2551,7 +2561,7 @@ namespace ASCOM.NexStar
             {
                 return Ra;
             }
-            Trace.TraceError(DriverId + ": GetRightAscention() : not implemented");
+            Log.LogMessage(DriverId, ": GetRightAscention() : not implemented");
             throw new ASCOM.NotImplementedException(DriverId + ": GetRightAscention() : not implemented");
         }
 
@@ -2561,7 +2571,7 @@ namespace ASCOM.NexStar
             {
                 return Scope.isGuiding;
             }
-            Trace.TraceError(DriverId + ": IsPulseGuiding() : not implemented");
+            Log.LogMessage(DriverId, ": IsPulseGuiding() : not implemented");
             throw new ASCOM.PropertyNotImplementedException(DriverId + ": IsPulseGuiding() : not implemented");
         }
 
@@ -2571,7 +2581,7 @@ namespace ASCOM.NexStar
                 Scope.TargetRa > 24d ||
                 !Scope.TargetRaSet)
             {
-                Trace.TraceError(DriverId + ": GetTargetRightAscention() : value not set");
+                Log.LogMessage(DriverId, ": GetTargetRightAscention() : value not set");
                 throw new ASCOM.ValueNotSetException(DriverId + ": GetTargetRightAscention() : value not set");
             }
             return Scope.TargetRa;
@@ -2581,7 +2591,7 @@ namespace ASCOM.NexStar
         {
             if (value < 0d || value > 24d)
             {
-                Trace.TraceError(DriverId + ": SetTargetRightAscention() : invalid value " + value.ToString());
+                Log.LogMessage(DriverId, ": SetTargetRightAscention() : invalid value " + value.ToString());
                 throw new ASCOM.InvalidValueException(DriverId + ": SetTargetRightAscention() : invalid value " + value.ToString());
             }
             Scope.TargetRaSet = true;
@@ -2594,7 +2604,7 @@ namespace ASCOM.NexStar
                 Scope.TargetDec > 90d ||
                 !Scope.TargetDecSet)
             {
-                Trace.TraceError(DriverId + ": GetTargetDeclination() : value not set");
+                Log.LogMessage(DriverId, ": GetTargetDeclination() : value not set");
                 throw new ASCOM.ValueNotSetException(DriverId + ": GetTargetDeclination() : value not set");
             }
             return Scope.TargetDec;
@@ -2604,7 +2614,7 @@ namespace ASCOM.NexStar
         {
             if (value < -90d || value > 90d)
             {
-                Trace.TraceError(DriverId + ": SetTargetDeclination() : invalid value " + value.ToString());
+                Log.LogMessage(DriverId, ": SetTargetDeclination() : invalid value " + value.ToString());
                 throw new ASCOM.InvalidValueException(DriverId + ": SetTargetDeclination() : invalid value " + value.ToString());
             }
             Scope.TargetDecSet = true;
@@ -2615,7 +2625,7 @@ namespace ASCOM.NexStar
         {
             if (value < 0 || value > 100)
             {
-                Trace.TraceError(DriverId + ": SetSlewSettleTime() : invalid value " + value.ToString());
+                Log.LogMessage(DriverId, ": SetSlewSettleTime() : invalid value " + value.ToString());
                 throw new ASCOM.InvalidValueException(DriverId + ": SetSlewSettleTime() : " + value.ToString());
             }
             Scope.SettleTime = value;
@@ -2625,7 +2635,7 @@ namespace ASCOM.NexStar
         {
             if (Scope.AlignmentMode != AlignmentModes.algGermanPolar)
             {
-                Trace.TraceError(DriverId + ": GetSideOfPier() : not implemented");
+                Log.LogMessage(DriverId, ": GetSideOfPier() : not implemented");
                 throw new ASCOM.PropertyNotImplementedException(DriverId + ": GetSideOfPier() : not implemented");
             }
             /* TODO: Put code here */
@@ -2636,7 +2646,7 @@ namespace ASCOM.NexStar
         {
             if (Scope.AlignmentMode != AlignmentModes.algGermanPolar)
             {
-                Trace.TraceError(DriverId + ": SetSideOfPier() : not implemented");
+                Log.LogMessage(DriverId, ": SetSideOfPier() : not implemented");
                 throw new ASCOM.PropertyNotImplementedException(DriverId + ": SetSideOfPier() : not inplemented");
             }
             /* TODO: put code here */
