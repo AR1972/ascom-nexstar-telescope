@@ -96,11 +96,6 @@ namespace ASCOM.NexStar
             //TODO: Implement your additional construction here
         }
 
-        ~Telescope()
-        {
-            Common.Log.LogMessage(Common.DriverId, "~Telescope()");
-        }
-
         #region ASCOM Registration
         //
         // Register or unregister driver for ASCOM. This is harmless if already
@@ -249,6 +244,7 @@ namespace ASCOM.NexStar
         #region public properties and methods
         public void Dispose()
         {
+            Common.Log.LogMessage(Common.DriverId, "Dispose()");
         }
 
         public bool Connected
