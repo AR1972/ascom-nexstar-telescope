@@ -70,18 +70,22 @@ namespace ASCOM.NexStar
 
         private void DecTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
+            long Intvl = DecIntvl;
+            DecIntvl = 0;
             DecTimer.Stop();
             Scope.isGuiding = RaTimer.Enabled | DecTimer.Enabled;
             Common.SlewFixedRate(Common.eDeviceId.ALT, Common.eDirection.Positive, Common.eFixedRate.Rate0);
-            DecDiffUpdt(DecStopWatch.ElapsedMilliseconds - DecIntvl);
+            DecDiffUpdt(DecStopWatch.ElapsedMilliseconds - Intvl);
         }
 
         private void RaTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
+            long Intvl = RaIntvl;
+            RaIntvl = 0;
             RaTimer.Stop();
             Scope.isGuiding = RaTimer.Enabled | DecTimer.Enabled;
             Common.SlewFixedRate(Common.eDeviceId.AZM, Common.eDirection.Positive, Common.eFixedRate.Rate0);
-            RaDiffUpdt(RaStopWatch.ElapsedMilliseconds - RaIntvl);
+            RaDiffUpdt(RaStopWatch.ElapsedMilliseconds - Intvl);
         }
 
         public void Guide(GuideDirections Direction, long Duration)
@@ -204,8 +208,6 @@ namespace ASCOM.NexStar
                         RaDiffList.Add(value);
                         RaDiffEvent(this, new EventArgs<double, double, double>(RaDiffList.Min(), RaDiffList.Max(), Math.Round(RaDiffList.Average(), 2)));
                     });
-                RaDiffStatUpdt.IsBackground = true;
-                RaDiffStatUpdt.Priority = ThreadPriority.Lowest;
                 RaDiffStatUpdt.Start();
             }
         }
@@ -225,8 +227,6 @@ namespace ASCOM.NexStar
                         DecDiffList.Add(value);
                         DecDiffEvent(this, new EventArgs<double, double, double>(DecDiffList.Min(), DecDiffList.Max(), Math.Round(DecDiffList.Average(), 2)));
                     });
-                DecDiffStatUpdt.IsBackground = true;
-                DecDiffStatUpdt.Priority = ThreadPriority.Lowest;
                 DecDiffStatUpdt.Start();
             }
         }
@@ -245,8 +245,6 @@ namespace ASCOM.NexStar
                         RaIntvlList.Add(value);
                         RaIntvlEvent(this, new EventArgs<long, long, double>(RaIntvlList.Min(), RaIntvlList.Max(), Math.Round(RaIntvlList.Average(), 2)));
                     });
-                RaIntvlStatUpdt.IsBackground = true;
-                RaIntvlStatUpdt.Priority = ThreadPriority.Lowest;
                 RaIntvlStatUpdt.Start();
             }
         }
@@ -265,8 +263,6 @@ namespace ASCOM.NexStar
                         DecIntvlList.Add(value);
                         DecIntvlEvent(this, new EventArgs<long, long, double>(DecIntvlList.Min(), DecIntvlList.Max(), Math.Round(DecIntvlList.Average(), 2)));
                     });
-                DecIntvlStatUpdt.IsBackground = true;
-                DecIntvlStatUpdt.Priority = ThreadPriority.Lowest;
                 DecIntvlStatUpdt.Start();
             }
         }
