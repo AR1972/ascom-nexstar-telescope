@@ -235,14 +235,6 @@ namespace ASCOM.NexStar
             Application.ApplicationExit += new System.EventHandler(ProcessExit);
         }
 
-        static void ProcessExit(object sender, EventArgs e)
-        {
-                if (Scope.isConnected)
-                {
-                    ScopeConnect(false);
-                }
-        }
-
         public static bool ScopeConnect(bool Connect)
         {
             Log.LogMessage(DriverId, "ScopeConnect(" + Connect.ToString() + ")");
@@ -1813,6 +1805,14 @@ namespace ASCOM.NexStar
         private static void UpdateProfileReciever(object sender, EventArgs<string, string> e)
         {
             ScopeProfile.WriteValue(DriverId, e.ValueA, e.ValueB);
+        }
+
+        private static void ProcessExit(object sender, EventArgs e)
+        {
+            if (Scope.isConnected)
+            {
+                ScopeConnect(false);
+            }
         }
 
         #endregion
