@@ -2584,8 +2584,8 @@ namespace ASCOM.NexStar
             {
                 return Scope.isGuiding;
             }
-            Log.LogMessage(DriverId, "IsPulseGuiding() : not implemented");
-            throw new ASCOM.PropertyNotImplementedException(DriverId + ": IsPulseGuiding() : not implemented");
+            Log.LogMessage(DriverId, "IsPulseGuiding() : not implemented in Alt/Azm");
+            throw new ASCOM.PropertyNotImplementedException(DriverId + ": IsPulseGuiding() : not implemented in Alt/Azm");
         }
 
         public static double GetTargetRightAscension()
