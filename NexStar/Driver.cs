@@ -244,7 +244,6 @@ namespace ASCOM.NexStar
         #region public properties and methods
         public void Dispose()
         {
-            Common.Log.LogMessage(Common.DriverId, "Dispose()");
             if (Scope.isConnected)
             {
                 Common.ScopeConnect(false);

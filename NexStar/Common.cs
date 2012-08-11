@@ -195,13 +195,14 @@ namespace ASCOM.NexStar
         private static Thread HC = null;
         private static Gps ScopeGps = null;
         private static GpsThread ScopeGpsThread = null;
-        private static object SyncRoot = null; /* lock this object during serial port transations */
+        private static object Sending = null; /* lock this object during serial port transations */
         private static Form HCWindow = null;
         private static int FAILSAFEINSTANCE = 0;
         private static Thread GP = null;
         private static Form GuidePerf = null;
         private static Thread GotoWatcher = null;
         internal static TraceLogger Log = null;
+        private static object Disconnecting = null;
         /* events */
         private delegate void EventHandler(object sender, EventArgs<object> e);
         private static event EventHandler<EventArgs<bool>> ScopeEventConnected;
@@ -211,7 +212,8 @@ namespace ASCOM.NexStar
             ScopeProfile = new Profile();
             ScopeGps = new Gps();
             ScopeGpsThread = new GpsThread();
-            SyncRoot = new object();
+            Sending = new object();
+            Disconnecting = new object();
             ScopePulseGuide = new PulseGuide();
             Log = new TraceLogger();
             Log.Enabled = true;
@@ -228,13 +230,21 @@ namespace ASCOM.NexStar
             ScopeGpsThread.GpsEventLinkState += new EventHandler<EventArgs<int>>(GpsLinkReciever);
             ScopeEventConnected += new EventHandler<EventArgs<bool>>(ScopeConnectReciever);
             Scope.EventPropertyChanged += new EventHandler<EventArgs<string, string>>(UpdateProfileReciever);
-            AppDomain.CurrentDomain.ProcessExit += new System.EventHandler(CurrentDomain_ProcessExit);
+            /* attempt to handle unexpected events */
+            AppDomain.CurrentDomain.ProcessExit += new System.EventHandler(ProcessExit);
+            AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(ProcessExit);
+            AppDomain.CurrentDomain.DomainUnload += new System.EventHandler(ProcessExit);
+            Application.ThreadException += new ThreadExceptionEventHandler(ProcessExit);
+            Application.ThreadExit += new System.EventHandler(ProcessExit);
+            Application.ApplicationExit += new System.EventHandler(ProcessExit);
         }
 
-        static void CurrentDomain_ProcessExit(object sender, EventArgs e)
+        static void ProcessExit(object sender, EventArgs e)
         {
-            Log.LogMessage(DriverId, "ProcessExit()");
-            ScopeConnect(false);
+                if (Scope.isConnected)
+                {
+                    ScopeConnect(false);
+                }
         }
 
         public static bool ScopeConnect(bool Connect)
@@ -259,7 +269,7 @@ namespace ASCOM.NexStar
                             try
                             {
                                 ScopeSerialPort = new Serial();
-                                lock (SyncRoot)
+                                lock (Sending)
                                 {
                                     ScopeSerialPort.Port = port;
                                     ScopeSerialPort.ReceiveTimeout = 4;
@@ -282,7 +292,7 @@ namespace ASCOM.NexStar
                                         return true;
                                     }
                                 }
-                                lock (SyncRoot)
+                                lock (Sending)
                                 {
                                     ScopeSerialPort.Connected = false;
                                     ScopeSerialPort = null;
@@ -314,33 +324,36 @@ namespace ASCOM.NexStar
                 /* disconnect from scope */
                 if (Scope.isConnected == true && ScopeSerialPort != null)
                 {
-                    /* this should stop the reconnect thread */
-                    Scope.Reconnecting = false;
-                    AbortSlew();
-                    ScopeGpsThread.Stop();
-                    ScopePulseGuide.Stop();
-                    /* SlewFixedRate sets tracking, make sure tracking is off */
-                    /* by sending the command just before isConnected is set false */
-                    SetTracking(false);
-                    /* setting isConnected = false will cause all running threads to quit */
-                    Scope.isConnected = false;
-                    lock (SyncRoot)
+                    lock (Disconnecting)
                     {
-                        try
+                        /* this should stop the reconnect thread */
+                        Scope.Reconnecting = false;
+                        AbortSlew();
+                        ScopeGpsThread.Stop();
+                        ScopePulseGuide.Stop();
+                        /* SlewFixedRate sets tracking, make sure tracking is off */
+                        /* by sending the command just before isConnected is set false */
+                        SetTracking(false);
+                        /* setting isConnected = false will cause all running threads to quit */
+                        Scope.isConnected = false;
+                        lock (Sending)
                         {
-                            ScopeSerialPort.Connected = false;
+                            try
+                            {
+                                ScopeSerialPort.Connected = false;
+                            }
+                            catch (Exception Ex)
+                            {
+                                Log.LogMessage(DriverId, "ScopeConnect() : " + Ex.Message);
+                            }
+                            finally
+                            {
+                                ScopeSerialPort.Dispose();
+                                ScopeSerialPort = null;
+                            }
                         }
-                        catch (Exception Ex)
-                        {
-                            Log.LogMessage(DriverId, "ScopeConnect() : " + Ex.Message);
-                        }
-                        finally
-                        {
-                            ScopeSerialPort.Dispose();
-                            ScopeSerialPort = null;
-                        }
+                        return true;
                     }
-                    return true;
                 }
                 else
                 {
@@ -353,7 +366,6 @@ namespace ASCOM.NexStar
         public static bool AbortSlew()
         /* supported from version 1.2 */
         {
-            Log.LogMessage(DriverId, "AbortSlew()");
             if (Scope.isConnected)
             {
                 // stop GOTO slew
@@ -545,11 +557,11 @@ namespace ASCOM.NexStar
         /* lifted form Celestron unified driver */
         /* this method is used to determin if connected to a supported scope */
         {
-            lock (SyncRoot)
+            lock (Sending)
             {
                 byte[] TxBuffer = { (byte)'?', (byte)'E' };
                 byte[] RxBuffer = { };
-                lock (SyncRoot)
+                lock (Sending)
                 {
                     ScopeSerialPort.ClearBuffers();
                     ScopeSerialPort.TransmitBinary(TxBuffer);
@@ -757,7 +769,7 @@ namespace ASCOM.NexStar
         {
             byte[] TxBuffer = { (byte)'K', (byte)'A' };
             byte[] RxBuffer = { 0x00, 0x00 };
-            lock (SyncRoot)
+            lock (Sending)
             {
                 try
                 {
@@ -793,7 +805,7 @@ namespace ASCOM.NexStar
             }
             try
             {
-                lock (SyncRoot)
+                lock (Sending)
                 {
                     ScopeSerialPort.ClearBuffers();
                     ScopeSerialPort.TransmitBinary(TxBuffer);
@@ -829,7 +841,7 @@ namespace ASCOM.NexStar
             }
             try
             {
-                lock (SyncRoot)
+                lock (Sending)
                 {
                     ScopeSerialPort.ClearBuffers();
                     ScopeSerialPort.TransmitBinary(TxBuffer);
@@ -1982,7 +1994,7 @@ namespace ASCOM.NexStar
                 int Attempts = 60;
                 byte[] TxBuffer = { (byte)'K', (byte)'A' };
                 byte[] RxBuffer = { 0x00, 0x00 };
-                lock (SyncRoot)
+                lock (Sending)
                 {
                     for (Count = 0; Count <= Attempts; Count++)
                     {
@@ -2066,7 +2078,7 @@ namespace ASCOM.NexStar
                     }
                     if (Scope.isConnected && Scope.isSlewing)
                     {
-                        lock (SyncRoot)
+                        lock (Sending)
                         {
                             foreach (byte[] Command in CommandList)
                             {
@@ -2174,7 +2186,6 @@ namespace ASCOM.NexStar
 
         public static void SetTracking(bool Tracking)
         {
-            Log.LogMessage(DriverId, "SetTracking(" + Tracking.ToString() + ")");
             switch (Scope.Type)
             {
                 case eScopeType.NEXSTAR_GPS:
