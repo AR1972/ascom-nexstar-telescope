@@ -86,5 +86,10 @@ namespace ASCOM.NexStar
         {
             button6.Select();
         }
+
+        private void HandController_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            e.Cancel = true;
+        }
     }
 }

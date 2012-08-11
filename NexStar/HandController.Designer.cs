@@ -150,6 +150,7 @@
             this.Name = "HandController";
             this.ShowInTaskbar = false;
             this.Text = "HandController";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.HandController_FormClosing);
             this.Load += new System.EventHandler(this.HandController_Load);
             this.ResumeLayout(false);
 
