@@ -1462,7 +1462,7 @@ namespace ASCOM.NexStar
         {
             if (Elevation < -300 || Elevation > 10000)
             {
-                Log.LogMessage(DriverId, "SetElevation() : invalid valie " + Elevation.ToString());
+                Log.LogMessage(DriverId, "SetElevation() : invalid value " + Elevation.ToString());
                 throw new ASCOM.InvalidValueException(DriverId + ": SetElevation()");
             }
             Scope.Elevation = Elevation;
@@ -2445,11 +2445,13 @@ namespace ASCOM.NexStar
                 }
                 else
                 {
+                    Log.LogMessage(DriverId, "SetGuideRate() : not implemented");
                     throw new ASCOM.PropertyNotImplementedException(DriverId + "SetGuideRate() : not implemented");
                 }
             }
             else
             {
+                Log.LogMessage(DriverId, "SetGuideRate() : invalid rate " + Rate.ToString());
                 throw new ASCOM.InvalidValueException(DriverId + ": SetGuideRate() : invalid rate " + Rate.ToString());
             }
         }
