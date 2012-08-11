@@ -1750,10 +1750,15 @@ namespace ASCOM.NexStar
                 double latitude;
                 Scope.HasGps = true;
                 Scope.GpsTimeValid = e.Value;
-                ScopeGps.GetLongitude(out longitude);
-                ScopeGps.GetLatitude(out latitude);
-                Scope.Longitude = longitude;
-                Scope.Latitude = latitude;
+                /* try not to block pulse guiding by using the
+                /* serial port to communicate with the GPS device */
+                if (!Scope.isGuiding)
+                {
+                    ScopeGps.GetLongitude(out longitude);
+                    ScopeGps.GetLatitude(out latitude);
+                    Scope.Longitude = longitude;
+                    Scope.Latitude = latitude;
+                }
             }
         }
 
@@ -1804,6 +1809,7 @@ namespace ASCOM.NexStar
                 /* speed up connect time by a few seconds by starting GPS after GetLatitude/GetLongitude */
                 ScopeGpsThread.Start();
                 Log.LogMessage(DriverId, "ScopeConnectReciever() : found " + Scope.Name + " " + (Scope.Version >> 8).ToString() + "." + (Scope.Version % 0x100).ToString() + " on COM" + Scope.ConnectedPort.ToString());
+                ScopePulseGuide = new PulseGuide();
                 ScopePulseGuide.Enabled = true;
                 //HC.Start();
             }
@@ -1967,7 +1973,7 @@ namespace ASCOM.NexStar
             while (Scope.isConnected)
             {
                 Application.DoEvents();
-                Thread.Sleep(250);
+                Thread.Sleep(50);
             }
             HCWindow.Close();
             HCWindow.Dispose();
@@ -1981,10 +1987,9 @@ namespace ASCOM.NexStar
             while (Scope.isConnected)
             {
                 Application.DoEvents();
-                Thread.Sleep(250);
+                Thread.Sleep(50);
             }
             GuidePerf.Close();
-            GuidePerf.Dispose();
         }
 
         private static bool ScopeReconnect()
