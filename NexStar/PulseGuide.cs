@@ -70,19 +70,23 @@ namespace ASCOM.NexStar
 
         private void DecTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
+            /* grab the interval ASAP */
+            long Intvl = DecIntvl;
             DecTimer.Stop();
             Scope.isGuiding = RaTimer.Enabled | DecTimer.Enabled;
             Common.SlewFixedRate(Common.eDeviceId.ALT, Common.eDirection.Positive, Common.eFixedRate.Rate0);
-            DecDiffUpdt(DecStopWatch.ElapsedMilliseconds - DecIntvl);
+            DecDiffUpdt(DecStopWatch.ElapsedMilliseconds - Intvl);
             DecStopWatch.Reset();
         }
 
         private void RaTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
+            /* grab the interval ASAP */
+            long Intvl = RaIntvl;
             RaTimer.Stop();
             Scope.isGuiding = RaTimer.Enabled | DecTimer.Enabled;
             Common.SlewFixedRate(Common.eDeviceId.AZM, Common.eDirection.Positive, Common.eFixedRate.Rate0);
-            RaDiffUpdt(RaStopWatch.ElapsedMilliseconds - RaIntvl);
+            RaDiffUpdt(RaStopWatch.ElapsedMilliseconds - Intvl);
             RaStopWatch.Reset();
         }
 
