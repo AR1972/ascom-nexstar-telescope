@@ -331,6 +331,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(250, 193);
+            this.ControlBox = false;
             this.Controls.Add(this.groupBoxDecInt);
             this.Controls.Add(this.groupBoxRaInt);
             this.Controls.Add(this.groupBoxDecJit);
