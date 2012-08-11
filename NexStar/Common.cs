@@ -313,7 +313,8 @@ namespace ASCOM.NexStar
                 {
                     lock (Disconnecting)
                     {
-                        /* this should stop the reconnect thread */
+                        /* this should stop the reconnect thread if running */
+                        /* expect an exception to be thrown */
                         Scope.Reconnecting = false;
                         AbortSlew();
                         ScopeGpsThread.Stop();
@@ -785,7 +786,7 @@ namespace ASCOM.NexStar
                 Log.LogMessage(DriverId, "SendSerialPortCommand() : null buffer");
                 throw new System.ArgumentNullException(DriverId + ": SendSerialPortCommand() : null buffer");
             }
-            if (!Scope.isConnected || Scope.Reconnecting || !RawEcho() && !ScopeReconnect())
+            if (!Scope.isConnected || !RawEcho() && !ScopeReconnect())
             {
                 RxBuffer = new byte[32];
                 return -1;
@@ -821,7 +822,7 @@ namespace ASCOM.NexStar
                 Log.LogMessage(DriverId, "SendSerialPortCommand() : null buffer");
                 throw new System.ArgumentNullException(DriverId + ": SendSerialPortCommand() : null buffer");
             }
-            if (!Scope.isConnected || Scope.Reconnecting || !RawEcho() && !ScopeReconnect())
+            if (!Scope.isConnected || !RawEcho() && !ScopeReconnect())
             {
                 RxBuffer = new byte[32];
                 return -1;
