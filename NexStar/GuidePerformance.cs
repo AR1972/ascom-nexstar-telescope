@@ -62,10 +62,11 @@ namespace ASCOM.NexStar
 
         private void GuidePerformance_FormClosing(object sender, FormClosingEventArgs e)
         {
-            Common.ScopePulseGuide.RaIntvlEvent -= ScopePulseGuide_RaIntEvent;
-            Common.ScopePulseGuide.RaDiffEvent -= ScopePulseGuide_RaJitEvent;
-            Common.ScopePulseGuide.DecIntvlEvent -= ScopePulseGuide_DecIntEvent;
-            Common.ScopePulseGuide.DecDiffEvent -= ScopePulseGuide_DecJitEvent;
+            e.Cancel = true;
+            //Common.ScopePulseGuide.RaIntvlEvent -= ScopePulseGuide_RaIntEvent;
+            //Common.ScopePulseGuide.RaDiffEvent -= ScopePulseGuide_RaJitEvent;
+            //Common.ScopePulseGuide.DecIntvlEvent -= ScopePulseGuide_DecIntEvent;
+            //Common.ScopePulseGuide.DecDiffEvent -= ScopePulseGuide_DecJitEvent;
         }
 
         private void GuidePerformance_Load(object sender, EventArgs e)
