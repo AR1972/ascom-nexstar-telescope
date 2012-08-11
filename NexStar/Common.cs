@@ -1804,6 +1804,7 @@ namespace ASCOM.NexStar
                 /* speed up connect time by a few seconds by starting GPS after GetLatitude/GetLongitude */
                 ScopeGpsThread.Start();
                 Log.LogMessage(DriverId, "ScopeConnectReciever() : found " + Scope.Name + " " + (Scope.Version >> 8).ToString() + "." + (Scope.Version % 0x100).ToString() + " on COM" + Scope.ConnectedPort.ToString());
+                ScopePulseGuide.Enabled = true;
                 //HC.Start();
             }
         }
