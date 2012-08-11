@@ -979,6 +979,7 @@ namespace ASCOM.NexStar
             {
                 return;
             }
+            Log.LogMessage(DriverId, "SlewToRaDec() : not implimented");
             throw new ASCOM.NotImplementedException(DriverId + ": SlewToRaDec()");
         }
 
@@ -992,6 +993,7 @@ namespace ASCOM.NexStar
             {
                 return;
             }
+            Log.LogMessage(DriverId, "SlewToAzmAlt() : not implimented");
             throw new ASCOM.NotImplementedException(DriverId + ": SlewToAzmAlt()");
         }
 
@@ -1370,7 +1372,8 @@ namespace ASCOM.NexStar
         {
             if (Longitude < -180 || Longitude > 180)
             {
-                throw new ASCOM.InvalidValueException(DriverId + ": SetLatitude()");
+                Log.LogMessage(DriverId, "SetLongitude() : invalid value " + Longitude.ToString());
+                throw new ASCOM.InvalidValueException(DriverId + ": SetLatitude() : " + Longitude.ToString());
             }
             HcLocation Hcl;
             double d, m, s;
@@ -1385,6 +1388,7 @@ namespace ASCOM.NexStar
             {
                 return true;
             }
+            Log.LogMessage(DriverId, "SetLongitude() : not implimented");
             throw new ASCOM.NotImplementedException(DriverId + ": SetLongitude()");
         }
 
@@ -1407,14 +1411,14 @@ namespace ASCOM.NexStar
                 double.TryParse(str, out Longitude);
                 return Longitude;
             }
-            throw new ASCOM.NotImplementedException(DriverId + ":  GetLongitude()");
         }
 
         public static bool SetLatitude(double Latitude)
         {
             if (Latitude < -90 || Latitude > 90)
             {
-                throw new ASCOM.InvalidValueException(DriverId + ": SetLatitude()");
+                Log.LogMessage(DriverId, "SetLatitude() : invalid value " + Latitude.ToString());
+                throw new ASCOM.InvalidValueException(DriverId + ": SetLatitude() " + Latitude.ToString());
             }
             HcLocation Hcl;
             double d, m, s;
@@ -1429,6 +1433,7 @@ namespace ASCOM.NexStar
             {
                 return true;
             }
+            Log.LogMessage(DriverId, "SetLatitude() : not implimented");
             throw new ASCOM.NotImplementedException(DriverId + ": SetLatitude()");
         }
 
@@ -1451,13 +1456,13 @@ namespace ASCOM.NexStar
                 double.TryParse(str, out Latitude);
                 return Latitude;
             }
-            throw new ASCOM.NotImplementedException(DriverId + ": GetLatitude()");
         }
 
         public static void SetElevation(double Elevation)
         {
             if (Elevation < -300 || Elevation > 10000)
             {
+                Log.LogMessage(DriverId, "SetElevation() : invalid valie " + Elevation.ToString());
                 throw new ASCOM.InvalidValueException(DriverId + ": SetElevation()");
             }
             Scope.Elevation = Elevation;
@@ -1520,6 +1525,7 @@ namespace ASCOM.NexStar
             {
                 return true;
             }
+            Log.LogMessage(DriverId, "GetRightAscensionDeclination() : not implimented");
             throw new ASCOM.NotImplementedException(DriverId + ": GetRightAscensionDeclination()");
         }
 
@@ -1622,6 +1628,7 @@ namespace ASCOM.NexStar
             {
                 return true;
             }
+            Log.LogMessage(DriverId, "GetAzimuthAltitude() : not implimented");
             throw new ASCOM.NotImplementedException(DriverId + ": GetAzimuthAltitude()");
         }
 
@@ -2235,7 +2242,8 @@ namespace ASCOM.NexStar
                     }
                     break;
                 default:
-                    throw new ASCOM.NotImplementedException(DriverId + ": SetTracking()");
+                    Log.LogMessage(DriverId, "SetTracking() : unsupported scope");
+                    throw new ASCOM.NotImplementedException(DriverId + ": SetTracking() : unsupported scope");
             }
         }
 
@@ -2262,7 +2270,8 @@ namespace ASCOM.NexStar
                             tr = (UInt16)eTrackRate.Lunar;
                             break;
                         default:
-                            throw new ASCOM.InvalidValueException(DriverId + "SetTrackingRate()");
+                            Log.LogMessage(DriverId, "SetTrackingRate() : invalid rate " + Rate.ToString());
+                            throw new ASCOM.InvalidValueException(DriverId + "SetTrackingRate() : invalid rate " + Rate.ToString());
                     }
                     switch (Scope.TrackingMode)
                     {
@@ -2347,8 +2356,10 @@ namespace ASCOM.NexStar
                     }
                     return;
                 }
-                throw new ASCOM.InvalidValueException(DriverId + ": SetRightAscensionRate()");
+                Log.LogMessage(DriverId, "SetRightAscensionRate() : invalid rate");
+                throw new ASCOM.InvalidValueException(DriverId + ": SetRightAscensionRate() : invalid rate");
             }
+            Log.LogMessage(DriverId, "SetRightAscensionRate() : not implimented");
             throw new ASCOM.PropertyNotImplementedException(DriverId + ": SetRightAscensionRate()");
         }
 
@@ -2371,8 +2382,10 @@ namespace ASCOM.NexStar
                     SlewVariableRate(eDeviceId.ALT, (long)mr);
                     return;
                 }
-                throw new ASCOM.InvalidValueException(DriverId + ": SetDeclinationRate()");
+                Log.LogMessage(DriverId, "SetDeclinationRate() : invalid rate");
+                throw new ASCOM.InvalidValueException(DriverId + ": SetDeclinationRate() : invalid rate");
             }
+            Log.LogMessage(DriverId, "SetDeclinationRate() : not implemented");
             throw new ASCOM.PropertyNotImplementedException(DriverId + ": SetDeclinationRate()");
         }
 
@@ -2432,7 +2445,7 @@ namespace ASCOM.NexStar
                 }
                 else
                 {
-                    throw new ASCOM.PropertyNotImplementedException(DriverId + ": SetGuideRate() : not implemented");
+                    throw new ASCOM.PropertyNotImplementedException(DriverId + "SetGuideRate() : not implemented");
                 }
             }
             else
@@ -2562,7 +2575,7 @@ namespace ASCOM.NexStar
             {
                 return Dec;
             }
-            Log.LogMessage(DriverId, ": GetDeclination() : not implemented");
+            Log.LogMessage(DriverId, "GetDeclination() : not implemented");
             throw new ASCOM.NotImplementedException(DriverId + ": GetDeclination() : not implemented");
         }
 
@@ -2574,7 +2587,7 @@ namespace ASCOM.NexStar
             {
                 return Ra;
             }
-            Log.LogMessage(DriverId, ": GetRightAscention() : not implemented");
+            Log.LogMessage(DriverId, "GetRightAscention() : not implemented");
             throw new ASCOM.NotImplementedException(DriverId + ": GetRightAscention() : not implemented");
         }
 
@@ -2584,7 +2597,7 @@ namespace ASCOM.NexStar
             {
                 return Scope.isGuiding;
             }
-            Log.LogMessage(DriverId, ": IsPulseGuiding() : not implemented");
+            Log.LogMessage(DriverId, "IsPulseGuiding() : not implemented");
             throw new ASCOM.PropertyNotImplementedException(DriverId + ": IsPulseGuiding() : not implemented");
         }
 
@@ -2594,7 +2607,7 @@ namespace ASCOM.NexStar
                 Scope.TargetRa > 24d ||
                 !Scope.TargetRaSet)
             {
-                Log.LogMessage(DriverId, ": GetTargetRightAscention() : value not set");
+                Log.LogMessage(DriverId, "GetTargetRightAscention() : value not set");
                 throw new ASCOM.ValueNotSetException(DriverId + ": GetTargetRightAscention() : value not set");
             }
             return Scope.TargetRa;
@@ -2604,7 +2617,7 @@ namespace ASCOM.NexStar
         {
             if (value < 0d || value > 24d)
             {
-                Log.LogMessage(DriverId, ": SetTargetRightAscention() : invalid value " + value.ToString());
+                Log.LogMessage(DriverId, "SetTargetRightAscention() : invalid value " + value.ToString());
                 throw new ASCOM.InvalidValueException(DriverId + ": SetTargetRightAscention() : invalid value " + value.ToString());
             }
             Scope.TargetRaSet = true;
@@ -2617,7 +2630,7 @@ namespace ASCOM.NexStar
                 Scope.TargetDec > 90d ||
                 !Scope.TargetDecSet)
             {
-                Log.LogMessage(DriverId, ": GetTargetDeclination() : value not set");
+                Log.LogMessage(DriverId, "GetTargetDeclination() : value not set");
                 throw new ASCOM.ValueNotSetException(DriverId + ": GetTargetDeclination() : value not set");
             }
             return Scope.TargetDec;
@@ -2627,7 +2640,7 @@ namespace ASCOM.NexStar
         {
             if (value < -90d || value > 90d)
             {
-                Log.LogMessage(DriverId, ": SetTargetDeclination() : invalid value " + value.ToString());
+                Log.LogMessage(DriverId, "SetTargetDeclination() : invalid value " + value.ToString());
                 throw new ASCOM.InvalidValueException(DriverId + ": SetTargetDeclination() : invalid value " + value.ToString());
             }
             Scope.TargetDecSet = true;
@@ -2638,7 +2651,7 @@ namespace ASCOM.NexStar
         {
             if (value < 0 || value > 100)
             {
-                Log.LogMessage(DriverId, ": SetSlewSettleTime() : invalid value " + value.ToString());
+                Log.LogMessage(DriverId, "SetSlewSettleTime() : invalid value " + value.ToString());
                 throw new ASCOM.InvalidValueException(DriverId + ": SetSlewSettleTime() : " + value.ToString());
             }
             Scope.SettleTime = value;
@@ -2648,7 +2661,7 @@ namespace ASCOM.NexStar
         {
             if (Scope.AlignmentMode != AlignmentModes.algGermanPolar)
             {
-                Log.LogMessage(DriverId, ": GetSideOfPier() : not implemented");
+                Log.LogMessage(DriverId, "GetSideOfPier() : not implemented");
                 throw new ASCOM.PropertyNotImplementedException(DriverId + ": GetSideOfPier() : not implemented");
             }
             /* TODO: Put code here */
@@ -2659,7 +2672,7 @@ namespace ASCOM.NexStar
         {
             if (Scope.AlignmentMode != AlignmentModes.algGermanPolar)
             {
-                Log.LogMessage(DriverId, ": SetSideOfPier() : not implemented");
+                Log.LogMessage(DriverId, "SetSideOfPier() : not implemented");
                 throw new ASCOM.PropertyNotImplementedException(DriverId + ": SetSideOfPier() : not inplemented");
             }
             /* TODO: put code here */
