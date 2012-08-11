@@ -15,7 +15,7 @@ namespace ASCOM.NexStar
     {
         private System.Timers.Timer RaTimer = null;
         private System.Timers.Timer DecTimer = null;
-        private object SyncRoot = null;
+        private bool GuideEnabled = false;
         /* Ra guide interval diff */
         private Stopwatch RaStopWatch = null;
         private List<double> RaDiffList = null;
@@ -32,13 +32,14 @@ namespace ASCOM.NexStar
         private List<long> DecIntvlList = null;
         private long DecIntvl = 0;
         private Thread DecIntvlStatUpdt = null;
-        private bool GuideEnabled = false;
+        /* performance window */
+        private static Thread PerformanceThread = null;
+        private static Form PerformanceWindow = null;
 
         public PulseGuide()
         {
             RaTimer = new System.Timers.Timer();
             DecTimer = new System.Timers.Timer();
-            SyncRoot = new object();
             RaStopWatch = new Stopwatch();
             DecStopWatch = new Stopwatch();
             RaTimer.Enabled = false;
@@ -54,6 +55,8 @@ namespace ASCOM.NexStar
             RaIntvlList = new List<long>();
             DecIntvlList = new List<long>();
             GuideEnabled = true;
+            PerformanceThread = new Thread(GuidePerfThread);
+            PerformanceThread.Start();
         }
 
         public delegate void EventHandler(object sender, EventArgs<object, object, object> e);
@@ -90,6 +93,10 @@ namespace ASCOM.NexStar
 
         public void Guide(GuideDirections Direction, long Duration)
         {
+            if (!PerformanceWindow.Visible)
+            {
+                PerformanceWindow.Show();
+            }
             Common.eFixedRate Rate = Common.eFixedRate.Rate1;
             Common.eDeviceId DevId = 0;
             Common.eDirection Dir = 0;
@@ -265,6 +272,18 @@ namespace ASCOM.NexStar
                     });
                 DecIntvlStatUpdt.Start();
             }
+        }
+
+        private static void GuidePerfThread()
+        {
+            Application.EnableVisualStyles();
+            PerformanceWindow = new GuidePerformance();
+            while (Scope.isConnected)
+            {
+                Application.DoEvents();
+                Thread.Sleep(50);
+            }
+            PerformanceWindow.Close();
         }
     }
 }

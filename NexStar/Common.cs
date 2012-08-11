@@ -198,8 +198,6 @@ namespace ASCOM.NexStar
         private static object Sending = null; /* lock this object during serial port transations */
         private static Form HCWindow = null;
         private static int FAILSAFEINSTANCE = 0;
-        private static Thread GP = null;
-        private static Form GuidePerf = null;
         private static Thread GotoWatcher = null;
         internal static TraceLogger Log = null;
         private static object Disconnecting = null;
@@ -214,12 +212,10 @@ namespace ASCOM.NexStar
             ScopeGpsThread = new GpsThread();
             Sending = new object();
             Disconnecting = new object();
-            ScopePulseGuide = new PulseGuide();
             Log = new TraceLogger();
             Log.Enabled = true;
             Log.LogStart(DriverId, "Celestron NexStar Driver");
             Log.LogFinish("");
-            ScopePulseGuide.Enabled = true;
             if (!ScopeProfile.IsRegistered(DriverId))
             {
                 ScopeProfile.DeviceType = PROFILE_DRIVER_TYPE;
@@ -259,7 +255,6 @@ namespace ASCOM.NexStar
                 {
                     /* create threads */
                     HC = new Thread(HcThread);
-                    GP = new Thread(GuidePerfThread);
                     //
                     foreach (short port in GetSerialPorts())
                     {
@@ -1979,19 +1974,6 @@ namespace ASCOM.NexStar
             HCWindow.Dispose();
         }
 
-        private static void GuidePerfThread()
-        {
-            Application.EnableVisualStyles();
-            GuidePerf = new GuidePerformance();
-            GuidePerf.Show();
-            while (Scope.isConnected)
-            {
-                Application.DoEvents();
-                Thread.Sleep(50);
-            }
-            GuidePerf.Close();
-        }
-
         private static bool ScopeReconnect()
         /* spawns a new thread to reconnect to the scope */
         {
@@ -2543,10 +2525,6 @@ namespace ASCOM.NexStar
             {
                 Log.LogMessage(DriverId, "PulseGuide() : pulseguide not supported in Alt/Az");
                 throw new ASCOM.NotImplementedException(DriverId + ": PulseGuide() : pulseguide not supported in Alt/Az");
-            }
-            if (!GP.IsAlive)
-            {
-                GP.Start();
             }
             ScopePulseGuide.Guide(Direction, Duration);
         }
