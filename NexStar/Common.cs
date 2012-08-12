@@ -200,6 +200,8 @@ namespace ASCOM.NexStar
         private static int FAILSAFEINSTANCE = 0;
         private static Thread GotoWatcher = null;
         internal static TraceLogger Log = null;
+        /* our disconnect/cleanup code can be called by many events to */
+        /* prevent disconnecting multiple times lock the Disconnecting object */
         private static object Disconnecting = null;
         /* events */
         private delegate void EventHandler(object sender, EventArgs<object> e);
@@ -1809,6 +1811,9 @@ namespace ASCOM.NexStar
         }
 
         private static void ProcessExit(object sender, EventArgs e)
+        /* this is a work around for unmanaged clients that do not */
+        /* set connected property when disconnecting e.g. PHD Guiding */
+        /* http://stackoverflow.com/questions/1724694/how-to-dispose-of-a-net-com-interop-object-on-release */
         {
             if (Scope.isConnected)
             {
