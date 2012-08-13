@@ -195,7 +195,8 @@ namespace ASCOM.NexStar
         private static Thread HC = null;
         private static Gps ScopeGps = null;
         private static GpsThread ScopeGpsThread = null;
-        private static object Sending = null; /* lock this object during serial port transations */
+        /* lock the Sending object during serial port transations */
+        private static object Sending = null;
         private static Form HCWindow = null;
         private static int FAILSAFEINSTANCE = 0;
         private static Thread GotoWatcher = null;
