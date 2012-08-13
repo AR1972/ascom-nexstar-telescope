@@ -100,18 +100,32 @@ namespace ASCOM.NexStar
             Thread t;
             while (Scope.isConnected && Run)
             {
-                GpsState = GpsTools.isLinked();
-                if (GpsState != LastGpsState)
+                /* avoid comunicating with the slow GPS device when pulse guiding */
+                /* if pulse guiding then just sleep the thread for an hour */
+                if (!Scope.isGuiding)
                 {
-                    LastGpsState = GpsState;
-                    if (GpsEventLinkState != null)
+                    GpsState = GpsTools.isLinked();
+                    if (GpsState != LastGpsState)
                     {
-                        GpsEventLinkState(GpsEvent.Link, new EventArgs<int>(GpsState));
+                        LastGpsState = GpsState;
+                        if (GpsEventLinkState != null)
+                        {
+                            GpsEventLinkState(GpsEvent.Link, new EventArgs<int>(GpsState));
+                        }
                     }
+                }
+                else
+                {
+                    GpsState = 2;
                 }
                 switch (GpsState)
                 {
+                    case 2:
+                        /* pulse guiding do nothing */
+                        SleepLength = (1000 * 60) * 60;
+                        break;
                     case 1:
+                        /* GPS linked, check if time is valid send the event*/
                         Linked = true;
                         LastLinkedTime = DateTime.UtcNow;
                         Present = true;
@@ -133,43 +147,13 @@ namespace ASCOM.NexStar
                         {
                             SleepLength = (1000 * 120);
                         }
-                        t = new Thread(() =>
-                        {
-                            Thread.Sleep(SleepLength);
-                        });
-                        t.IsBackground = true;
-                        t.Priority = ThreadPriority.Lowest;
-                        t.Start();
-                        while (t.IsAlive && Run)
-                        {
-                            Application.DoEvents();
-                            Thread.Sleep(500);
-                        }
-                        if (t.IsAlive)
-                        {
-                            t.Abort();
-                        }
                         break;
                     case 0:
+                        /* not yet linked, try again in 2 min */
                         Linked = false;
                         TimeValid = false;
                         Present = true;
-                        t = new Thread(() =>
-                        {
-                            Thread.Sleep(1000 * 120);
-                        });
-                        t.IsBackground = true;
-                        t.Priority = ThreadPriority.Lowest;
-                        t.Start();
-                        while (t.IsAlive && Run)
-                        {
-                            Application.DoEvents();
-                            Thread.Sleep(500);
-                        }
-                        if (t.IsAlive)
-                        {
-                            t.Abort();
-                        }
+                        SleepLength = 1000 * 120;
                         break;
                     default:
                         /* comunication with GPS device failed assume
@@ -183,6 +167,22 @@ namespace ASCOM.NexStar
                         }
                         return;
                 };
+                t = new Thread(() =>
+                {
+                    Thread.Sleep(SleepLength);
+                });
+                t.IsBackground = true;
+                t.Priority = ThreadPriority.Lowest;
+                t.Start();
+                while (t.IsAlive && Run)
+                {
+                    Application.DoEvents();
+                    Thread.Sleep(500);
+                }
+                if (t.IsAlive)
+                {
+                    t.Abort();
+                }
             }
         }
     }
