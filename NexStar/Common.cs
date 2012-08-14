@@ -1502,12 +1502,13 @@ namespace ASCOM.NexStar
 
         private static bool GetRightAscensionDeclination(out double Ra, out double Dec)
         {
-            if (!isAligned())
+            if (!Scope.isAligned)
             {
                 Ra = 0;
                 Dec = 0;
                 return true;
             }
+            Throttle();
             if (GetPreciseRaDec(out Ra, out Dec))
             {
                 return true;
@@ -1611,6 +1612,7 @@ namespace ASCOM.NexStar
 
         private static bool GetAzimuthAltitude(out double Azm, out double Alt)
         {
+            Throttle();
             if (GetPreciseAzmAlt(out Azm, out Alt))
             {
                 return true;
@@ -2669,6 +2671,16 @@ namespace ASCOM.NexStar
                 throw new ASCOM.PropertyNotImplementedException(DriverId + ": SetSideOfPier() : not inplemented");
             }
             /* TODO: put code here */
+        }
+
+        private static void Throttle()
+        /* block using the serial port in between start */
+        /* and stop commands while pulse guiding */
+        {
+            while (Scope.isGuiding)
+            {
+                Thread.Sleep(50);
+            }
         }
 
         #region can-do's
