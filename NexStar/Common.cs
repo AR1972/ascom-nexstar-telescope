@@ -1216,7 +1216,7 @@ namespace ASCOM.NexStar
         public static DateTime GetUtcDate()
         {
             DateTime dt = new DateTime();
-            if (Scope.HasGps && Scope.GpsState == 1 && Scope.GpsTimeValid &&
+            if (!Scope.isGuiding && Scope.HasGps && Scope.GpsState == 1 && Scope.GpsTimeValid &&
                 ScopeGps.GetDateTime(out dt))
             {
                 // nothing to see here move along
@@ -1387,7 +1387,8 @@ namespace ASCOM.NexStar
         {
             double Longitude = 0;
             double Latitude = 0;
-            if (Scope.GpsState == 1 && Scope.GpsTimeValid && ScopeGps.GetLongitude(out Longitude))
+            if (!Scope.isGuiding && Scope.GpsState == 1 &&
+                Scope.GpsTimeValid && ScopeGps.GetLongitude(out Longitude))
             {
                 return Longitude;
             }
@@ -1432,7 +1433,8 @@ namespace ASCOM.NexStar
         {
             double Longitude = 0;
             double Latitude = 0;
-            if (Scope.GpsState == 1 && Scope.GpsTimeValid && ScopeGps.GetLatitude(out Latitude))
+            if (!Scope.isGuiding && Scope.GpsState == 1 &&
+                Scope.GpsTimeValid && ScopeGps.GetLatitude(out Latitude))
             {
                 return Latitude;
             }
@@ -1508,7 +1510,6 @@ namespace ASCOM.NexStar
                 Dec = 0;
                 return true;
             }
-            Throttle();
             if (GetPreciseRaDec(out Ra, out Dec))
             {
                 return true;
@@ -1612,7 +1613,6 @@ namespace ASCOM.NexStar
 
         private static bool GetAzimuthAltitude(out double Azm, out double Alt)
         {
-            Throttle();
             if (GetPreciseAzmAlt(out Azm, out Alt))
             {
                 return true;
@@ -2671,16 +2671,6 @@ namespace ASCOM.NexStar
                 throw new ASCOM.PropertyNotImplementedException(DriverId + ": SetSideOfPier() : not inplemented");
             }
             /* TODO: put code here */
-        }
-
-        private static void Throttle()
-        /* block using the serial port in between start */
-        /* and stop commands while pulse guiding */
-        {
-            while (Scope.isGuiding)
-            {
-                Thread.Sleep(50);
-            }
         }
 
         #region can-do's
