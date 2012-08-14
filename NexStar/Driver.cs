@@ -415,7 +415,7 @@ namespace ASCOM.NexStar
         }
 
         public bool CanPark
-        /* TODO: impliment driver based park */
+        /* TODO: implement */
         {
             get { return false; }
         }
@@ -499,7 +499,7 @@ namespace ASCOM.NexStar
         }
 
         public bool CanUnpark
-        /* TODO: impliment driver park */
+        /* TODO: implement */
         {
             get { return false; }
         }
@@ -518,7 +518,7 @@ namespace ASCOM.NexStar
         }
 
         public PierSide DestinationSideOfPier(double RightAscension, double Declination)
-        /* TODO: finish this*/
+        /* TODO: implement */
         {
             if (Scope.AlignmentMode == AlignmentModes.algGermanPolar)
             {
@@ -587,11 +587,13 @@ namespace ASCOM.NexStar
         }
 
         public bool IsPulseGuiding
+        /* done AR */
         {
             get { return Common.IsPulseGuiding(); }
         }
 
         public void MoveAxis(TelescopeAxes Axis, double Rate)
+        /* TODO: check/debug */
         {
             Common.MoveAxis(Axis, Rate);
         }
@@ -603,12 +605,13 @@ namespace ASCOM.NexStar
         }
 
         public void Park()
+        /* TODO: implement */
         {
             throw new ASCOM.MethodNotImplementedException();
         }
 
         public void PulseGuide(GuideDirections Direction, int Duration)
-            /* TODO: check/debug */
+        /* done AR */
         {
             Common.PulseGuide(Direction, Duration);
         }
@@ -627,13 +630,13 @@ namespace ASCOM.NexStar
         }
 
         public void SetPark()
-        /* TODO */
+        /* TODO: implement */
         {
             throw new ASCOM.MethodNotImplementedException(Common.DriverId + ": SetPark() failed");
         }
 
         public PierSide SideOfPier
-        /* TODO */
+        /* TODO: implement */
         {
             get { return Common.GetSideOfPier(); }
             set { Common.SetSideOfPier(value); }
@@ -751,7 +754,8 @@ namespace ASCOM.NexStar
         }
 
         public void SyncToAltAz(double Azimuth, double Altitude)
-            /* done AR */ /* no scope does SyncAltAz */
+        /* done AR */
+        /* no scope does SyncAltAz */
         {
             throw new ASCOM.MethodNotImplementedException(Common.DriverId + "SyncToAltAz() failed");
         }
@@ -793,7 +797,7 @@ namespace ASCOM.NexStar
         }
 
         public DriveRates TrackingRate
-        /* TODO: check */
+        /* TODO: check/debug */
         {
             get { return Scope.TrackingRate; }
             set { Common.SetTrackingRate(value); }
@@ -813,6 +817,7 @@ namespace ASCOM.NexStar
         }
 
         public void Unpark()
+        /* TODO: implement */
         {
             throw new ASCOM.MethodNotImplementedException();
         }
