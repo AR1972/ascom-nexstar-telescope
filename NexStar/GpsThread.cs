@@ -36,11 +36,6 @@ namespace ASCOM.NexStar
             GpsTools = new Gps();
         }
 
-        ~GpsThread()
-        {
-            GpsTools = null;
-        }
-
         public bool Start()
         {
             Stop();
