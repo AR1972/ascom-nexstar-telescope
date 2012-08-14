@@ -1804,7 +1804,9 @@ namespace ASCOM.NexStar
                 Log.LogMessage(DriverId, "ScopeConnectReciever() : found " + Scope.Name + " " + (Scope.Version >> 8).ToString() + "." + (Scope.Version % 0x100).ToString() + " on COM" + Scope.ConnectedPort.ToString());
                 ScopePulseGuide = new PulseGuide();
                 ScopePulseGuide.Enabled = true;
-                //HC.Start();
+#if DEBUG
+                HC.Start();
+#endif
             }
         }
 

@@ -71,10 +71,12 @@ namespace ASCOM.NexStar
 
         private void GuidePerformance_Load(object sender, EventArgs e)
         {
+#if DEBUG
             Common.ScopePulseGuide.RaIntvlEvent += new EventHandler<EventArgs<long, long, double>>(ScopePulseGuide_RaIntEvent);
             Common.ScopePulseGuide.RaDiffEvent += new EventHandler<EventArgs<double, double, double>>(ScopePulseGuide_RaJitEvent);
             Common.ScopePulseGuide.DecIntvlEvent += new EventHandler<EventArgs<long, long, double>>(ScopePulseGuide_DecIntEvent);
             Common.ScopePulseGuide.DecDiffEvent += new EventHandler<EventArgs<double, double, double>>(ScopePulseGuide_DecJitEvent);
+#endif
         }
     }
 }

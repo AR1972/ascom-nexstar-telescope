@@ -16,6 +16,7 @@ namespace ASCOM.NexStar
         private System.Timers.Timer RaTimer = null;
         private System.Timers.Timer DecTimer = null;
         private bool GuideEnabled = false;
+#if DEBUG
         /* Ra guide interval diff */
         private Stopwatch RaStopWatch = null;
         private List<double> RaDiffList = null;
@@ -35,11 +36,14 @@ namespace ASCOM.NexStar
         /* performance window */
         private static Thread PerformanceThread = null;
         private static Form PerformanceWindow = null;
+#endif
 
         public PulseGuide()
         {
             RaTimer = new System.Timers.Timer();
             DecTimer = new System.Timers.Timer();
+            GuideEnabled = true;
+#if DEBUG
             RaStopWatch = new Stopwatch();
             DecStopWatch = new Stopwatch();
             RaTimer.Enabled = false;
@@ -54,16 +58,18 @@ namespace ASCOM.NexStar
             DecDiffList = new List<double>();
             RaIntvlList = new List<long>();
             DecIntvlList = new List<long>();
-            GuideEnabled = true;
             PerformanceThread = new Thread(GuidePerfThread);
             PerformanceThread.Start();
+#endif
         }
 
+#if DEBUG
         public delegate void EventHandler(object sender, EventArgs<object, object, object> e);
         public event EventHandler<EventArgs<double, double, double>> RaDiffEvent;
         public event EventHandler<EventArgs<double, double, double>> DecDiffEvent;
         public event EventHandler<EventArgs<long, long, double>> RaIntvlEvent;
         public event EventHandler<EventArgs<long, long, double>> DecIntvlEvent;
+#endif
 
         public bool Enabled
         {
@@ -73,30 +79,40 @@ namespace ASCOM.NexStar
 
         private void DecTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
+#if DEBUG
             long Intvl = DecIntvl;
             DecIntvl = 0;
+#endif
             DecTimer.Stop();
             Scope.isGuiding = RaTimer.Enabled | DecTimer.Enabled;
             Common.SlewFixedRate(Common.eDeviceId.ALT, Common.eDirection.Positive, Common.eFixedRate.Rate0);
+#if DEBUG
             DecDiffUpdt(DecStopWatch.ElapsedMilliseconds - Intvl);
+#endif
         }
 
         private void RaTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
+#if DEBUG
             long Intvl = RaIntvl;
             RaIntvl = 0;
+#endif
             RaTimer.Stop();
             Scope.isGuiding = RaTimer.Enabled | DecTimer.Enabled;
             Common.SlewFixedRate(Common.eDeviceId.AZM, Common.eDirection.Positive, Common.eFixedRate.Rate0);
+#if DEBUG
             RaDiffUpdt(RaStopWatch.ElapsedMilliseconds - Intvl);
+#endif
         }
 
         public void Guide(GuideDirections Direction, long Duration)
         {
+#if DEBUG
             if (!PerformanceWindow.Visible)
             {
                 PerformanceWindow.Show();
             }
+#endif
             Common.eFixedRate Rate = Common.eFixedRate.Rate1;
             Common.eDeviceId DevId = 0;
             Common.eDirection Dir = 0;
@@ -149,11 +165,15 @@ namespace ASCOM.NexStar
                         Scope.isGuiding = true;
                         DecTimer.Interval = Duration;
                         Common.SlewFixedRate(DevId, Dir, Rate);
+#if DEBUG
                         DecStopWatch.Reset();
                         DecStopWatch.Start();
+#endif
                         DecTimer.Start();
+#if DEBUG
                         DecIntvlUpdt(Duration);
                         DecIntvl = Duration;
+#endif
                     }
                     else
                     {
@@ -167,11 +187,15 @@ namespace ASCOM.NexStar
                         Scope.isGuiding = true;
                         RaTimer.Interval = Duration;
                         Common.SlewFixedRate(DevId, Dir, Rate);
+#if DEBUG
                         RaStopWatch.Reset();
                         RaStopWatch.Start();
+#endif
                         RaTimer.Start();
+#if DEBUG
                         RaIntvlUpdt(Duration);
                         RaIntvl = Duration;
+#endif
                     }
                     else
                     {
@@ -185,8 +209,10 @@ namespace ASCOM.NexStar
         {
             RaTimer.Stop();
             DecTimer.Stop();
+#if DEBUG
             RaStopWatch.Stop();
             DecStopWatch.Stop();
+#endif
             Scope.isGuiding = RaTimer.Enabled | DecTimer.Enabled;
             Common.SlewFixedRate(Common.eDeviceId.AZM, Common.eDirection.Positive, Common.eFixedRate.Rate0);
             Common.SlewFixedRate(Common.eDeviceId.ALT, Common.eDirection.Positive, Common.eFixedRate.Rate0);
@@ -200,6 +226,7 @@ namespace ASCOM.NexStar
             DecTimer.Close();
         }
 
+#if DEBUG
         private void RaDiffUpdt(double value)
         /* tracks the difference between requested */
         /* messured guide interval for the Ra axis */
@@ -285,5 +312,7 @@ namespace ASCOM.NexStar
             }
             PerformanceWindow.Close();
         }
+#endif
+
     }
 }
