@@ -255,7 +255,7 @@ namespace ASCOM.NexStar
                     {
                         if (port > 0 && port <= 256) /* sanity check on port number */
                         {
-                            Log.LogMessage(DriverId, "ScopeConnect() : trying COM" + port.ToString());
+                            Log.LogMessage(DriverId, "ScopeConnect(" + Connect.ToString() + ") : trying COM" + port.ToString());
                             try
                             {
                                 ScopeSerialPort = new Serial();
