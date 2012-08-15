@@ -43,15 +43,15 @@ namespace ASCOM.NexStar
             RaTimer = new System.Timers.Timer();
             DecTimer = new System.Timers.Timer();
             GuideEnabled = true;
-#if DEBUG
-            RaStopWatch = new Stopwatch();
-            DecStopWatch = new Stopwatch();
             RaTimer.Enabled = false;
             DecTimer.Enabled = false;
             RaTimer.AutoReset = false;
             DecTimer.AutoReset = false;
             RaTimer.Elapsed += new ElapsedEventHandler(RaTimer_Elapsed);
             DecTimer.Elapsed += new ElapsedEventHandler(DecTimer_Elapsed);
+#if DEBUG
+            RaStopWatch = new Stopwatch();
+            DecStopWatch = new Stopwatch();
             RaStopWatch.Reset();
             DecStopWatch.Reset();
             RaDiffList = new List<double>();
