@@ -34,9 +34,9 @@ namespace ASCOM.NexStar
             text_lat.Text = Scope.Latitude.ToString();
             text_long.Text = Scope.Longitude.ToString();
             text_evel.Text = Scope.Elevation.ToString();
-            text_foc_len.Text = (Scope.FocalLength*1000).ToString();
-            text_ap_area.Text = (Scope.ApertureArea*1000).ToString();
-            text_ap_dia.Text = (Scope.ApertureDiameter*1000).ToString();
+            text_foc_len.Text = (Scope.FocalLength * 1000).ToString();
+            text_ap_area.Text = (Scope.ApertureArea * 1000000).ToString();
+            text_ap_dia.Text = (Scope.ApertureDiameter * 1000).ToString();
             dt = Common.GetLstDateTime();
             tmr.Interval = 1000;
             tmr.AutoReset = true;
@@ -49,6 +49,7 @@ namespace ASCOM.NexStar
             comboBox2.Items.Add("Eq South");
             comboBox2.SelectedIndex = 0;
             comboBox2.SelectedIndex = ((int)Scope.TrackingMode);
+            checkBox1.Checked = Scope.PecEnabled;
         }
 
         public void updatelst()
@@ -88,12 +89,13 @@ namespace ASCOM.NexStar
             double.TryParse(text_evel.Text, out value);
             Scope.Elevation = value;
             double.TryParse(text_foc_len.Text, out value);
-            Scope.FocalLength = value/1000;
+            Scope.FocalLength = value / 1000;
             double.TryParse(text_ap_area.Text, out value);
-            Scope.ApertureArea = value/1000;
+            Scope.ApertureArea = value / 1000000;
             double.TryParse(text_ap_dia.Text, out value);
-            Scope.ApertureDiameter = value/1000;
+            Scope.ApertureDiameter = value / 1000;
             Scope.TrackingMode = (Common.eTrackingMode)comboBox2.SelectedIndex;
+            Scope.PecEnabled = checkBox1.Checked;
             tmr.Stop();
             tmr.Dispose();
             Close();
@@ -141,6 +143,7 @@ namespace ASCOM.NexStar
             {
                 double r = 0;
                 double.TryParse(text_ap_dia.Text.ToString(), out r);
+                r /= 2;
                 text_ap_area.Text = Math.Round((Math.PI * (r * r)), 1).ToString();
             }
         }

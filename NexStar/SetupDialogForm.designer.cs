@@ -35,6 +35,8 @@ namespace ASCOM.NexStar
             this.text_lat = new System.Windows.Forms.TextBox();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tab_scope = new System.Windows.Forms.TabPage();
+            this.label4 = new System.Windows.Forms.Label();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.comboBox2 = new System.Windows.Forms.ComboBox();
@@ -47,6 +49,7 @@ namespace ASCOM.NexStar
             this.lable_aapature_area = new System.Windows.Forms.Label();
             this.label_apature_dia = new System.Windows.Forms.Label();
             this.tab_site = new System.Windows.Forms.TabPage();
+            this.label3 = new System.Windows.Forms.Label();
             this.text_lst = new System.Windows.Forms.TextBox();
             this.label_lst = new System.Windows.Forms.Label();
             this.lable_evel = new System.Windows.Forms.Label();
@@ -119,7 +122,7 @@ namespace ASCOM.NexStar
             // 
             this.tabControl1.Controls.Add(this.tab_scope);
             this.tabControl1.Controls.Add(this.tab_site);
-            this.tabControl1.Location = new System.Drawing.Point(5, 9);
+            this.tabControl1.Location = new System.Drawing.Point(6, 9);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
             this.tabControl1.Size = new System.Drawing.Size(270, 170);
@@ -128,6 +131,8 @@ namespace ASCOM.NexStar
             // tab_scope
             // 
             this.tab_scope.BackColor = System.Drawing.SystemColors.Control;
+            this.tab_scope.Controls.Add(this.label4);
+            this.tab_scope.Controls.Add(this.checkBox1);
             this.tab_scope.Controls.Add(this.label2);
             this.tab_scope.Controls.Add(this.label1);
             this.tab_scope.Controls.Add(this.comboBox2);
@@ -146,6 +151,25 @@ namespace ASCOM.NexStar
             this.tab_scope.Size = new System.Drawing.Size(262, 144);
             this.tab_scope.TabIndex = 1;
             this.tab_scope.Text = "Scope";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(72, 110);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(29, 13);
+            this.label4.TabIndex = 9;
+            this.label4.Text = " mm²";
+            // 
+            // checkBox1
+            // 
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Location = new System.Drawing.Point(150, 109);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(83, 17);
+            this.checkBox1.TabIndex = 8;
+            this.checkBox1.Text = "Enable PEC";
+            this.checkBox1.UseVisualStyleBackColor = true;
             // 
             // label2
             // 
@@ -231,22 +255,23 @@ namespace ASCOM.NexStar
             this.lable_aapature_area.AutoSize = true;
             this.lable_aapature_area.Location = new System.Drawing.Point(3, 92);
             this.lable_aapature_area.Name = "lable_aapature_area";
-            this.lable_aapature_area.Size = new System.Drawing.Size(69, 13);
+            this.lable_aapature_area.Size = new System.Drawing.Size(72, 13);
             this.lable_aapature_area.TabIndex = 0;
-            this.lable_aapature_area.Text = "Apature Area";
+            this.lable_aapature_area.Text = "Aperture Area";
             // 
             // label_apature_dia
             // 
             this.label_apature_dia.AutoSize = true;
             this.label_apature_dia.Location = new System.Drawing.Point(3, 51);
             this.label_apature_dia.Name = "label_apature_dia";
-            this.label_apature_dia.Size = new System.Drawing.Size(66, 13);
+            this.label_apature_dia.Size = new System.Drawing.Size(69, 13);
             this.label_apature_dia.TabIndex = 0;
-            this.label_apature_dia.Text = "Apature Dia.";
+            this.label_apature_dia.Text = "Aperture Dia.";
             // 
             // tab_site
             // 
             this.tab_site.BackColor = System.Drawing.SystemColors.Control;
+            this.tab_site.Controls.Add(this.label3);
             this.tab_site.Controls.Add(this.text_lst);
             this.tab_site.Controls.Add(this.label_lst);
             this.tab_site.Controls.Add(this.lable_evel);
@@ -261,6 +286,15 @@ namespace ASCOM.NexStar
             this.tab_site.Size = new System.Drawing.Size(262, 144);
             this.tab_site.TabIndex = 0;
             this.tab_site.Text = "Site";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(72, 110);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(15, 13);
+            this.label3.TabIndex = 5;
+            this.label3.Text = "m";
             // 
             // text_lst
             // 
@@ -382,5 +416,8 @@ namespace ASCOM.NexStar
         private System.Windows.Forms.Label label_align;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label label4;
     }
 }
