@@ -194,7 +194,7 @@ namespace ASCOM.NexStar
         public const string DriverDescription = "Celestron NexStar Telescope";
         private static Thread HC = null;
         private static Gps ScopeGps = null;
-        private static GpsThread ScopeGpsThread = null;
+        private static GpsService ScopeGpsService = null;
         /* lock the Sending object during serial port transations */
         private static object Sending = null;
         private static Form HCWindow = null;
@@ -204,6 +204,8 @@ namespace ASCOM.NexStar
         /* our disconnect/cleanup code can be called by many events to */
         /* prevent disconnecting multiple times lock the Disconnecting object */
         private static object Disconnecting = null;
+        /* timer to restart the GPS service once pulse guiding has ended */
+        private static System.Timers.Timer GuideTimer = null;
         /* events */
         private delegate void EventHandler(object sender, EventArgs<object> e);
         private static event EventHandler<EventArgs<bool>> ScopeEventConnected;
@@ -212,7 +214,7 @@ namespace ASCOM.NexStar
         {
             ScopeProfile = new Profile();
             ScopeGps = new Gps();
-            ScopeGpsThread = new GpsThread();
+            ScopeGpsService = new GpsService();
             Sending = new object();
             Disconnecting = new object();
             Log = new TraceLogger();
@@ -224,9 +226,9 @@ namespace ASCOM.NexStar
                 ScopeProfile.DeviceType = PROFILE_DRIVER_TYPE;
                 ScopeProfile.Register(DriverId, DriverDescription);
             }
-            ScopeGpsThread.GpsEventError += new EventHandler<EventArgs<int>>(GpsErrorReciever);
-            ScopeGpsThread.GpsEventTimeValid += new EventHandler<EventArgs<bool>>(GpsTimeValidReciever);
-            ScopeGpsThread.GpsEventLinkState += new EventHandler<EventArgs<int>>(GpsLinkReciever);
+            ScopeGpsService.GpsEventError += new EventHandler<EventArgs<int>>(GpsErrorReciever);
+            ScopeGpsService.GpsEventTimeValid += new EventHandler<EventArgs<bool>>(GpsTimeValidReciever);
+            ScopeGpsService.GpsEventLinkState += new EventHandler<EventArgs<int>>(GpsLinkReciever);
             ScopeEventConnected += new EventHandler<EventArgs<bool>>(ScopeConnectReciever);
             Scope.EventPropertyChanged += new EventHandler<EventArgs<string, string>>(UpdateProfileReciever);
             /* attempt to handle unexpected events */
@@ -236,6 +238,11 @@ namespace ASCOM.NexStar
             Application.ThreadException += new ThreadExceptionEventHandler(ProcessExit);
             Application.ThreadExit += new System.EventHandler(ProcessExit);
             Application.ApplicationExit += new System.EventHandler(ProcessExit);
+            /* start/stop GPS service during pulse guiding*/
+            GuideTimer = new System.Timers.Timer();
+            GuideTimer.Enabled = false;
+            GuideTimer.AutoReset = false;
+            GuideTimer.Elapsed += new System.Timers.ElapsedEventHandler(GuideTimer_Elapsed);
         }
 
         public static bool ScopeConnect(bool Connect)
@@ -320,7 +327,7 @@ namespace ASCOM.NexStar
                         /* expect an exception to be thrown */
                         Scope.Reconnecting = false;
                         AbortSlew();
-                        ScopeGpsThread.Stop();
+                        ScopeGpsService.Stop();
                         ScopePulseGuide.Stop();
                         /* SlewFixedRate sets tracking, make sure tracking is off */
                         /* by sending the command just before isConnected is set false */
@@ -1216,8 +1223,8 @@ namespace ASCOM.NexStar
         public static DateTime GetUtcDate()
         {
             DateTime dt = new DateTime();
-            if (!Scope.isGuiding && Scope.HasGps && Scope.GpsState == 1 && Scope.GpsTimeValid &&
-                ScopeGps.GetDateTime(out dt))
+            if (Scope.HasGps && Scope.GpsState == 1 && Scope.GpsTimeValid &&
+                ScopeGpsService.isRunning && ScopeGps.GetDateTime(out dt))
             {
                 // nothing to see here move along
             }
@@ -1387,8 +1394,8 @@ namespace ASCOM.NexStar
         {
             double Longitude = 0;
             double Latitude = 0;
-            if (!Scope.isGuiding && Scope.GpsState == 1 &&
-                Scope.GpsTimeValid && ScopeGps.GetLongitude(out Longitude))
+            if (Scope.GpsState == 1 && Scope.GpsTimeValid &&
+                ScopeGpsService.isRunning && ScopeGps.GetLongitude(out Longitude))
             {
                 return Longitude;
             }
@@ -1433,8 +1440,8 @@ namespace ASCOM.NexStar
         {
             double Longitude = 0;
             double Latitude = 0;
-            if (!Scope.isGuiding && Scope.GpsState == 1 &&
-                Scope.GpsTimeValid && ScopeGps.GetLatitude(out Latitude))
+            if (Scope.GpsState == 1 && Scope.GpsTimeValid &&
+                ScopeGpsService.isRunning && ScopeGps.GetLatitude(out Latitude))
             {
                 return Latitude;
             }
@@ -1723,7 +1730,7 @@ namespace ASCOM.NexStar
         /* this event signals an error communicating with the GPS device */
         /* the device may not exist? as a result the GpsThread has quit  */
         {
-            if ((GpsThread.GpsEvent)sender == GpsThread.GpsEvent.Error &&
+            if ((GpsService.GpsEvent)sender == GpsService.GpsEvent.Error &&
                 e.Value == -1)
             {
                 Scope.HasGps = false;
@@ -1737,28 +1744,23 @@ namespace ASCOM.NexStar
         /* GpsThread should send this event every hour if the GPS is linked and */
         /* the time is valid, refresh the global lat/long fields */
         {
-            if ((GpsThread.GpsEvent)sender == GpsThread.GpsEvent.TimeValid)
+            if ((GpsService.GpsEvent)sender == GpsService.GpsEvent.TimeValid)
             {
                 double longitude;
                 double latitude;
                 Scope.HasGps = true;
                 Scope.GpsTimeValid = e.Value;
-                /* try not to block pulse guiding by using the
-                /* serial port to communicate with the GPS device */
-                if (!Scope.isGuiding)
-                {
-                    ScopeGps.GetLongitude(out longitude);
-                    ScopeGps.GetLatitude(out latitude);
-                    Scope.Longitude = longitude;
-                    Scope.Latitude = latitude;
-                }
+                ScopeGps.GetLongitude(out longitude);
+                ScopeGps.GetLatitude(out latitude);
+                Scope.Longitude = longitude;
+                Scope.Latitude = latitude;
             }
         }
 
         private static void GpsLinkReciever(object sender, EventArgs<int> e)
         /* this event signals that the GPS device is reporting linked */
         {
-            if ((GpsThread.GpsEvent)sender == GpsThread.GpsEvent.Link)
+            if ((GpsService.GpsEvent)sender == GpsService.GpsEvent.Link)
             {
                 Scope.HasGps = true;
                 Scope.GpsState = e.Value;
@@ -1800,7 +1802,7 @@ namespace ASCOM.NexStar
                 Scope.Latitude = GetLatitude();
                 Scope.Longitude = GetLongitude();
                 /* speed up connect time by a few seconds by starting GPS after GetLatitude/GetLongitude */
-                ScopeGpsThread.Start();
+                ScopeGpsService.Start();
                 Log.LogMessage(DriverId, "ScopeConnectReciever() : found " + Scope.Name + " " + (Scope.Version >> 8).ToString() + "." + (Scope.Version % 0x100).ToString() + " on COM" + Scope.ConnectedPort.ToString());
                 ScopePulseGuide = new PulseGuide();
                 ScopePulseGuide.Enabled = true;
@@ -1823,6 +1825,38 @@ namespace ASCOM.NexStar
             if (Scope.isConnected)
             {
                 ScopeConnect(false);
+            }
+        }
+
+        static void GuideTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        /* starts the GPS service when the timer elapses */
+        {
+            ThreadPool.QueueUserWorkItem(new WaitCallback(PulseGuiding), false);
+        }
+
+        static void PulseGuiding(Object stateInfo)
+        /* communicating with the GPS is slow so stop the serivce when pulse guiding */
+        /* use timer to restart the GPS service after pulse guiding has been stopped */
+        /* for 5 min, now we can check the isRunning property of the GPS service to */
+        /* determing if the GPS device can be used in other methods */
+        {
+            if ((bool)stateInfo)
+            {
+                if (ScopeGpsService.isRunning)
+                {
+                    Log.LogMessage(DriverId, "begin pulse guiding, stopping GPS service");
+                    ScopeGpsService.Stop();
+                }
+                GuideTimer.Interval = ((1000 * 60) * 5);
+                GuideTimer.Enabled = true;
+            }
+            else
+            {
+                if (!ScopeGpsService.isRunning)
+                {
+                    Log.LogMessage(DriverId, "end pulse guiding, starting GPS service");
+                    ScopeGpsService.Start();
+                }
             }
         }
 
@@ -2537,6 +2571,7 @@ namespace ASCOM.NexStar
                 Log.LogMessage(DriverId, "PulseGuide() : pulseguide not supported in Alt/Az");
                 throw new ASCOM.NotImplementedException(DriverId + ": PulseGuide() : pulseguide not supported in Alt/Az");
             }
+            ThreadPool.QueueUserWorkItem(new WaitCallback(PulseGuiding), true);
             ScopePulseGuide.Guide(Direction, Duration);
         }
 
