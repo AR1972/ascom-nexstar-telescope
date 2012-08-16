@@ -179,6 +179,7 @@ namespace ASCOM.NexStar
         public const string PROFILE_FOCAL_LENGTH = "FocalLength";
         private const string PROFILE_HC_RATE = "HcRate";
         public const string PROFILE_TRACK_MODE = "TrackMode";
+        public const string PROFILE_PEC_ENABLE = "PecEnable";
 
         #endregion
 
@@ -1797,7 +1798,7 @@ namespace ASCOM.NexStar
                 Scope.TargetRa = 0;
                 Scope.Name = "Celestron " + Scope.ModelName;
                 Scope.isSlewing = isSlewing();
-                EnablePec(false);
+                EnablePec(Scope.PecEnabled);
                 GetMotorVersion(out Scope.AzmVersion, out Scope.AltVersion);
                 Scope.Latitude = GetLatitude();
                 Scope.Longitude = GetLongitude();
@@ -1905,6 +1906,15 @@ namespace ASCOM.NexStar
             str = ScopeProfile.GetValue(DriverId, PROFILE_TRACK_MODE);
             int.TryParse(str, out value);
             return (eTrackingMode)value;
+        }
+
+        public static bool GetPecEnabled()
+        {
+            string str;
+            bool value;
+            str = ScopeProfile.GetValue(DriverId, PROFILE_PEC_ENABLE);
+            bool.TryParse(str, out value);
+            return value;
         }
 
         #endregion

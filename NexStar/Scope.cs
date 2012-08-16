@@ -19,6 +19,7 @@ namespace ASCOM.NexStar
         private static double pApertureDiameter = 0;
         private static double pFocalLength = 0;
         private static Common.eTrackingMode pTrackingMode = Common.eTrackingMode.OFF;
+        private static bool pPecEnabled = false;
         /* public members */
         public static bool isConnected = false;
         public static string ModelName = "Uknown";
@@ -153,6 +154,19 @@ namespace ASCOM.NexStar
             }
         }
 
+        public static bool PecEnabled
+        {
+            get { return pPecEnabled; }
+            set
+            {
+                pPecEnabled = value;
+                if (EventPropertyChanged != null)
+                {
+                    EventPropertyChanged(Common.eScopeEvent.PropertyChanged, new EventArgs<string, string>(Common.PROFILE_PEC_ENABLE, pPecEnabled.ToString()));
+                }
+            }
+        }
+
         static Scope()
         {
             TrackingRates = new TrackingRates();
@@ -164,6 +178,7 @@ namespace ASCOM.NexStar
             pLatitude = Common.GetLatitude();
             pLongitude = Common.GetLongitude();
             pTrackingMode = Common.GetTrackMode();
+            pPecEnabled = Common.GetPecEnabled();
         }
     }
 }
