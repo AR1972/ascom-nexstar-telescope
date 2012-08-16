@@ -157,9 +157,9 @@ namespace ASCOM.NexStar
             this.label4.AutoSize = true;
             this.label4.Location = new System.Drawing.Point(72, 110);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(29, 13);
+            this.label4.Size = new System.Drawing.Size(26, 13);
             this.label4.TabIndex = 9;
-            this.label4.Text = " mm²";
+            this.label4.Text = "mm²";
             // 
             // checkBox1
             // 
