@@ -393,7 +393,7 @@ namespace ASCOM.NexStar
         }
 
         private static bool isAligned()
-        /* supported since version 1.2 */
+        /* supported from version 1.2 */
         {
             if (Scope.isConnected)
             {
@@ -1797,13 +1797,14 @@ namespace ASCOM.NexStar
                 Scope.TargetRa = 0;
                 Scope.Name = "Celestron " + Scope.ModelName;
                 Scope.isSlewing = isSlewing();
-                EnablePec(true);
+                EnablePec(false);
                 GetMotorVersion(out Scope.AzmVersion, out Scope.AltVersion);
                 Scope.Latitude = GetLatitude();
                 Scope.Longitude = GetLongitude();
                 /* speed up connect time by a few seconds by starting GPS after GetLatitude/GetLongitude */
                 ScopeGpsService.Start();
-                Log.LogMessage(DriverId, "ScopeConnectReciever() : found " + Scope.Name + " " + (Scope.Version >> 8).ToString() + "." + (Scope.Version % 0x100).ToString() + " on COM" + Scope.ConnectedPort.ToString());
+                Log.LogMessage(DriverId, "ScopeConnectReciever() : found " + Scope.Name + " " + (Scope.Version >> 8).ToString() +
+                    "." + (Scope.Version % 0x100).ToString() + " on COM" + Scope.ConnectedPort.ToString());
                 ScopePulseGuide = new PulseGuide();
                 ScopePulseGuide.Enabled = true;
 #if DEBUG
@@ -1832,32 +1833,6 @@ namespace ASCOM.NexStar
         /* starts the GPS service when the timer elapses */
         {
             ThreadPool.QueueUserWorkItem(new WaitCallback(PulseGuiding), false);
-        }
-
-        static void PulseGuiding(Object stateInfo)
-        /* communicating with the GPS is slow so stop the serivce when pulse guiding */
-        /* use timer to restart the GPS service after pulse guiding has been stopped */
-        /* for 5 min, now we can check the isRunning property of the GPS service to */
-        /* determing if the GPS device can be used in other methods */
-        {
-            if ((bool)stateInfo)
-            {
-                if (ScopeGpsService.isRunning)
-                {
-                    Log.LogMessage(DriverId, "begin pulse guiding, stopping GPS service");
-                    ScopeGpsService.Stop();
-                }
-                GuideTimer.Interval = ((1000 * 60) * 5);
-                GuideTimer.Enabled = true;
-            }
-            else
-            {
-                if (!ScopeGpsService.isRunning)
-                {
-                    Log.LogMessage(DriverId, "end pulse guiding, starting GPS service");
-                    ScopeGpsService.Start();
-                }
-            }
         }
 
         #endregion
@@ -1933,6 +1908,32 @@ namespace ASCOM.NexStar
         }
 
         #endregion
+
+        static void PulseGuiding(Object stateInfo)
+        /* communicating with the GPS is slow so stop the serivce when pulse guiding */
+        /* use timer to restart the GPS service after pulse guiding has been stopped */
+        /* for 5 min, now we can check the isRunning property of the GPS service to */
+        /* determing if the GPS device can be used in other methods */
+        {
+            if ((bool)stateInfo)
+            {
+                if (ScopeGpsService.isRunning)
+                {
+                    Log.LogMessage(DriverId, "begin pulse guiding, stopping GPS service");
+                    ScopeGpsService.Stop();
+                }
+                GuideTimer.Interval = ((1000 * 60) * 5);
+                GuideTimer.Enabled = true;
+            }
+            else
+            {
+                if (!ScopeGpsService.isRunning)
+                {
+                    Log.LogMessage(DriverId, "end pulse guiding, starting GPS service");
+                    ScopeGpsService.Start();
+                }
+            }
+        }
 
         private static short[] GetSerialPorts()
         /* returns an array of short representing the serial      */
@@ -2623,7 +2624,7 @@ namespace ASCOM.NexStar
             throw new ASCOM.NotImplementedException(DriverId + ": GetRightAscention() : not implemented");
         }
 
-        public static bool IsPulseGuiding()
+        public static bool isPulseGuiding()
         {
             if (CanPulseGuide())
             {

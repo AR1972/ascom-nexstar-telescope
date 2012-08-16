@@ -589,7 +589,7 @@ namespace ASCOM.NexStar
         public bool IsPulseGuiding
         /* done AR */
         {
-            get { return Common.IsPulseGuiding(); }
+            get { return Common.isPulseGuiding(); }
         }
 
         public void MoveAxis(TelescopeAxes Axis, double Rate)
