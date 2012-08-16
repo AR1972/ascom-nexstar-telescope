@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace ASCOM.NexStar
 {
-    internal class GpsThread
+    internal class GpsService
     {
         Thread t = null;
         private bool Run = false;
@@ -31,7 +31,7 @@ namespace ASCOM.NexStar
         public event EventHandler<EventArgs<bool>> GpsEventTimeValid;
         public event EventHandler<EventArgs<int>> GpsEventError;
 
-        public GpsThread()
+        public GpsService()
         {
             GpsTools = new Gps();
         }
@@ -58,7 +58,6 @@ namespace ASCOM.NexStar
                     Application.DoEvents();
                 }
                 Run = true;
-                t = null;
             }
             return true;
         }
@@ -95,30 +94,17 @@ namespace ASCOM.NexStar
             Thread t;
             while (Scope.isConnected && Run)
             {
-                /* avoid comunicating with the slow GPS device when pulse guiding */
-                /* if pulse guiding then just sleep the thread for an hour */
-                if (!Scope.isGuiding)
+                GpsState = GpsTools.isLinked();
+                if (GpsState != LastGpsState)
                 {
-                    GpsState = GpsTools.isLinked();
-                    if (GpsState != LastGpsState)
+                    LastGpsState = GpsState;
+                    if (GpsEventLinkState != null)
                     {
-                        LastGpsState = GpsState;
-                        if (GpsEventLinkState != null)
-                        {
-                            GpsEventLinkState(GpsEvent.Link, new EventArgs<int>(GpsState));
-                        }
+                        GpsEventLinkState(GpsEvent.Link, new EventArgs<int>(GpsState));
                     }
-                }
-                else
-                {
-                    GpsState = 2;
                 }
                 switch (GpsState)
                 {
-                    case 2:
-                        /* pulse guiding do nothing */
-                        SleepLength = (1000 * 60) * 60;
-                        break;
                     case 1:
                         /* GPS linked, check if time is valid send the event*/
                         Linked = true;

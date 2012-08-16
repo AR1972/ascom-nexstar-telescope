@@ -89,7 +89,7 @@
     <Compile Include="Driver.cs" />
     <Compile Include="EventArgs.cs" />
     <Compile Include="Gps.cs" />
-    <Compile Include="GpsThread.cs" />
+    <Compile Include="GpsService.cs" />
     <Compile Include="HandController.cs">
       <SubType>Form</SubType>
     </Compile>
