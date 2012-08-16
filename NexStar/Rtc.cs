@@ -11,13 +11,6 @@ namespace ASCOM.NexStar
         /* commands are officially for CGE mounts only */
         /* set commands appear to work on the CPC */
     {
-        public Rtc()
-        {
-        }
-
-        ~Rtc()
-        {
-        }
 
         public bool SetRtcDateTime(DateTime RtcDateTime)
         {

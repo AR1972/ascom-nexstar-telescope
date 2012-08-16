@@ -13,14 +13,6 @@ namespace ASCOM.NexStar
         /* all returned values are UT */
     {
 
-        public Gps()
-        {
-        }
-
-        ~Gps()
-        {
-        }
-
         public int isLinked()
         /* returns -1 on error as device may not exist */
         {
