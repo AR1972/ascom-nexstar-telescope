@@ -1798,10 +1798,7 @@ namespace ASCOM.NexStar
                 Scope.TargetRa = 0;
                 Scope.Name = "Celestron " + Scope.ModelName;
                 Scope.isSlewing = isSlewing();
-                if (Scope.AlignmentMode != AlignmentModes.algAltAz)
-                {
-                    EnablePec(Scope.PecEnabled);
-                }
+                EnablePec(Scope.PecEnabled);
                 GetMotorVersion(out Scope.AzmVersion, out Scope.AltVersion);
                 Scope.Latitude = GetLatitude();
                 Scope.Longitude = GetLongitude();
