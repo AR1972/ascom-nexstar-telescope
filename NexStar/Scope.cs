@@ -20,6 +20,7 @@ namespace ASCOM.NexStar
         private static double pFocalLength = 0;
         private static Common.eTrackingMode pTrackingMode = Common.eTrackingMode.OFF;
         private static bool pPecEnabled = false;
+        private static double pApertureObstruction = 0;
         /* public members */
         public static bool isConnected = false;
         public static string ModelName = "Uknown";
@@ -129,6 +130,18 @@ namespace ASCOM.NexStar
                 }
             }
         }
+        public static double ApertureObstruction
+        {
+            get { return pApertureObstruction; }
+            set
+            {
+                pApertureObstruction = value;
+                if (EventPropertyChanged != null)
+                {
+                    EventPropertyChanged(Common.eScopeEvent.PropertyChanged, new EventArgs<string, string>(Common.PROFILE_APERTURE_OBSTRUCTION, pApertureObstruction.ToString()));
+                }
+            }
+        }
         public static double ApertureDiameter
         {
             get { return pApertureDiameter; }
@@ -153,7 +166,6 @@ namespace ASCOM.NexStar
                 }
             }
         }
-
         public static bool PecEnabled
         {
             get { return pPecEnabled; }
@@ -179,6 +191,7 @@ namespace ASCOM.NexStar
             pLongitude = Common.GetLongitude();
             pTrackingMode = Common.GetTrackMode();
             pPecEnabled = Common.GetPecEnabled();
+            pApertureObstruction = Common.GetApertureObstruction();
         }
     }
 }

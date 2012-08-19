@@ -176,6 +176,7 @@ namespace ASCOM.NexStar
         private const string PROFILE_DRIVER_TYPE = "Telescope";
         public const string PROFILE_APERTURE_DIAMETER = "ApertureDiameter";
         public const string PROFILE_APERTURE_AREA = "ApertureArea";
+        public const string PROFILE_APERTURE_OBSTRUCTION = "ApertureObstruction";
         public const string PROFILE_FOCAL_LENGTH = "FocalLength";
         private const string PROFILE_HC_RATE = "HcRate";
         public const string PROFILE_TRACK_MODE = "TrackMode";
@@ -1914,6 +1915,15 @@ namespace ASCOM.NexStar
             bool value;
             str = ScopeProfile.GetValue(DriverId, PROFILE_PEC_ENABLE);
             bool.TryParse(str, out value);
+            return value;
+        }
+
+        public static double GetApertureObstruction()
+        {
+            string str;
+            double value;
+            str = ScopeProfile.GetValue(DriverId, PROFILE_APERTURE_OBSTRUCTION);
+            double.TryParse(str, out value);
             return value;
         }
 

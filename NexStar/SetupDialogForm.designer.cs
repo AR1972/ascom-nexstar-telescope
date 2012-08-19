@@ -44,9 +44,9 @@ namespace ASCOM.NexStar
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.text_foc_len = new System.Windows.Forms.TextBox();
             this.label_focal_len = new System.Windows.Forms.Label();
-            this.text_ap_area = new System.Windows.Forms.TextBox();
+            this.text_ap_obs = new System.Windows.Forms.TextBox();
             this.text_ap_dia = new System.Windows.Forms.TextBox();
-            this.lable_aapature_area = new System.Windows.Forms.Label();
+            this.lable_apature_obs = new System.Windows.Forms.Label();
             this.label_apature_dia = new System.Windows.Forms.Label();
             this.tab_site = new System.Windows.Forms.TabPage();
             this.label3 = new System.Windows.Forms.Label();
@@ -140,9 +140,9 @@ namespace ASCOM.NexStar
             this.tab_scope.Controls.Add(this.comboBox1);
             this.tab_scope.Controls.Add(this.text_foc_len);
             this.tab_scope.Controls.Add(this.label_focal_len);
-            this.tab_scope.Controls.Add(this.text_ap_area);
+            this.tab_scope.Controls.Add(this.text_ap_obs);
             this.tab_scope.Controls.Add(this.text_ap_dia);
-            this.tab_scope.Controls.Add(this.lable_aapature_area);
+            this.tab_scope.Controls.Add(this.lable_apature_obs);
             this.tab_scope.Controls.Add(this.label_apature_dia);
             this.tab_scope.Controls.Add(this.label_port);
             this.tab_scope.Location = new System.Drawing.Point(4, 22);
@@ -157,9 +157,9 @@ namespace ASCOM.NexStar
             this.label4.AutoSize = true;
             this.label4.Location = new System.Drawing.Point(72, 110);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(26, 13);
+            this.label4.Size = new System.Drawing.Size(15, 13);
             this.label4.TabIndex = 9;
-            this.label4.Text = "mm²";
+            this.label4.Text = "%";
             // 
             // checkBox1
             // 
@@ -233,13 +233,14 @@ namespace ASCOM.NexStar
             this.label_focal_len.TabIndex = 0;
             this.label_focal_len.Text = "Focal Length";
             // 
-            // text_ap_area
+            // text_ap_obs
             // 
-            this.text_ap_area.Location = new System.Drawing.Point(6, 109);
-            this.text_ap_area.Name = "text_ap_area";
-            this.text_ap_area.Size = new System.Drawing.Size(66, 20);
-            this.text_ap_area.TabIndex = 3;
-            this.text_ap_area.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.text_ap_area_KeyPress);
+            this.text_ap_obs.Location = new System.Drawing.Point(6, 109);
+            this.text_ap_obs.Name = "text_ap_obs";
+            this.text_ap_obs.Size = new System.Drawing.Size(66, 20);
+            this.text_ap_obs.TabIndex = 3;
+            this.text_ap_obs.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.text_ap_obs_KeyPress);
+            this.text_ap_obs.Leave += new System.EventHandler(this.text_ap_obs_Leave);
             // 
             // text_ap_dia
             // 
@@ -250,14 +251,14 @@ namespace ASCOM.NexStar
             this.text_ap_dia.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.text_ap_dia_KeyPress);
             this.text_ap_dia.Leave += new System.EventHandler(this.text_ap_dia_Leave);
             // 
-            // lable_aapature_area
+            // lable_apature_obs
             // 
-            this.lable_aapature_area.AutoSize = true;
-            this.lable_aapature_area.Location = new System.Drawing.Point(3, 92);
-            this.lable_aapature_area.Name = "lable_aapature_area";
-            this.lable_aapature_area.Size = new System.Drawing.Size(72, 13);
-            this.lable_aapature_area.TabIndex = 0;
-            this.lable_aapature_area.Text = "Aperture Area";
+            this.lable_apature_obs.AutoSize = true;
+            this.lable_apature_obs.Location = new System.Drawing.Point(3, 92);
+            this.lable_apature_obs.Name = "lable_apature_obs";
+            this.lable_apature_obs.Size = new System.Drawing.Size(61, 13);
+            this.lable_apature_obs.TabIndex = 0;
+            this.lable_apature_obs.Text = "Obstruction";
             // 
             // label_apature_dia
             // 
@@ -405,9 +406,9 @@ namespace ASCOM.NexStar
         private System.Windows.Forms.TabPage tab_scope;
         private System.Windows.Forms.TextBox text_foc_len;
         private System.Windows.Forms.Label label_focal_len;
-        private System.Windows.Forms.TextBox text_ap_area;
+        private System.Windows.Forms.TextBox text_ap_obs;
         private System.Windows.Forms.TextBox text_ap_dia;
-        private System.Windows.Forms.Label lable_aapature_area;
+        private System.Windows.Forms.Label lable_apature_obs;
         private System.Windows.Forms.Label label_apature_dia;
         private System.Windows.Forms.ComboBox comboBox1;
         private System.Windows.Forms.TextBox text_lst;

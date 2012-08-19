@@ -16,6 +16,8 @@ namespace ASCOM.NexStar
     {
         System.Timers.Timer tmr = new System.Timers.Timer();
         DateTime dt;
+        double ob_area;
+        double area;
 
         public SetupDialogForm()
         {
@@ -35,7 +37,7 @@ namespace ASCOM.NexStar
             text_long.Text = Scope.Longitude.ToString();
             text_evel.Text = Scope.Elevation.ToString();
             text_foc_len.Text = (Scope.FocalLength * 1000).ToString();
-            text_ap_area.Text = (Scope.ApertureArea * 1000000).ToString();
+            text_ap_obs.Text = Scope.ApertureObstruction.ToString();
             text_ap_dia.Text = (Scope.ApertureDiameter * 1000).ToString();
             dt = Common.GetLstDateTime();
             tmr.Interval = 1000;
@@ -90,8 +92,18 @@ namespace ASCOM.NexStar
             Scope.Elevation = value;
             double.TryParse(text_foc_len.Text, out value);
             Scope.FocalLength = value / 1000;
-            double.TryParse(text_ap_area.Text, out value);
+            /* caluclate aperture area */
+            double r = 0;
+            double.TryParse(text_ap_dia.Text.ToString(), out r);
+            r /= 2;
+            value = (r * r) * Math.PI;
+            double obs = 0;
+            double.TryParse(text_ap_obs.Text.ToString(), out obs);
+            Scope.ApertureObstruction = obs;
+            obs /= 100d;
+            value -= ((r * obs) * (r * obs)) * Math.PI;
             Scope.ApertureArea = value / 1000000;
+            /* */
             double.TryParse(text_ap_dia.Text, out value);
             Scope.ApertureDiameter = value / 1000;
             Scope.TrackingMode = (Common.eTrackingMode)comboBox2.SelectedIndex;
@@ -141,25 +153,12 @@ namespace ASCOM.NexStar
             if (text_ap_dia.Text != null ||
                 text_ap_dia.Text != String.Empty)
             {
-                double r = 0;
-                double.TryParse(text_ap_dia.Text.ToString(), out r);
-                r /= 2;
-                text_ap_area.Text = Math.Round((Math.PI * (r * r)), 1).ToString();
             }
         }
 
         private void text_ap_dia_KeyPress(object sender, KeyPressEventArgs e)
         {
             if(!char.IsNumber(e.KeyChar) &&
-                !char.IsControl(e.KeyChar))
-            {
-                e.Handled = true;
-            }
-        }
-
-        private void text_ap_area_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (!char.IsNumber(e.KeyChar) &&
                 !char.IsControl(e.KeyChar))
             {
                 e.Handled = true;
@@ -212,6 +211,28 @@ namespace ASCOM.NexStar
         {
             tmr.Stop();
             tmr.Dispose();
+        }
+
+        private void text_ap_obs_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsNumber(e.KeyChar) &&
+                !char.IsControl(e.KeyChar))
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void text_ap_obs_Leave(object sender, EventArgs e)
+        {
+            if (text_ap_obs.Text == null ||
+                text_ap_obs.Text == String.Empty)
+            {
+                text_ap_obs.Text = "0";
+            }
+            if (text_ap_obs.Text != null ||
+                text_ap_obs.Text != String.Empty)
+            {
+            }
         }
     }
 }
