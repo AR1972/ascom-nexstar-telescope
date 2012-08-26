@@ -16,8 +16,6 @@ namespace ASCOM.NexStar
     {
         System.Timers.Timer tmr = new System.Timers.Timer();
         DateTime dt;
-        double ob_area;
-        double area;
 
         public SetupDialogForm()
         {
