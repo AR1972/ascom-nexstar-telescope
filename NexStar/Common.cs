@@ -2811,11 +2811,7 @@ namespace ASCOM.NexStar
 
         public static bool CanSync()
         {
-            if (Scope.Version >= Version_41)
-            {
-                return true;
-            }
-            return false;
+            return (Scope.Version >= Version_41);
         }
 
         #endregion
