@@ -39,7 +39,7 @@ namespace ASCOM.NexStar
 
         public void Dispose()
         {
-            throw new System.NotImplementedException();
+            //throw new System.NotImplementedException();
         }
 
         public double Maximum
@@ -128,7 +128,7 @@ namespace ASCOM.NexStar
 
         public IEnumerator GetEnumerator()
         {
-            return rates.GetEnumerator();
+            return this.rates.GetEnumerator();
         }
 
         public IRate this[int index]
@@ -169,7 +169,7 @@ namespace ASCOM.NexStar
             //
             this.trackingRates = new DriveRates[Rates.Length + 1];
             this.trackingRates[0] = DriveRates.driveSidereal;
-            Rates.CopyTo(trackingRates, 1);
+            Rates.CopyTo(this.trackingRates, 1);
         }
 
         #region ITrackingRates Members
@@ -186,7 +186,7 @@ namespace ASCOM.NexStar
 
         public void Dispose()
         {
-            throw new System.NotImplementedException();
+            //throw new System.NotImplementedException();
         }
 
         public DriveRates this[int index]
