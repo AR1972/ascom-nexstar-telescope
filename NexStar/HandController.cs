@@ -10,8 +10,8 @@ using System.Runtime.InteropServices;
 
 namespace ASCOM.NexStar
 {
-    [ComVisible(false)]					// Form not registered for COM!
-    public partial class HandController : Form
+    [ComVisible(false)]
+    internal partial class HandController : Form
     {
         public HandController()
         {

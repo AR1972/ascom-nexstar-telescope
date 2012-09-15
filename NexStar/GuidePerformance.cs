@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 
 namespace ASCOM.NexStar
 {
-    [ComVisible(false)]					// Form not registered for COM!
+    [ComVisible(false)]
     internal partial class GuidePerformance : Form
     {
         object SyncLock = null;

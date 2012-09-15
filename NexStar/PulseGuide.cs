@@ -8,9 +8,11 @@ using ASCOM.DeviceInterface;
 using System.Diagnostics;
 using System.Threading;
 using System.Windows.Forms;
+using System.Runtime.InteropServices;
 
 namespace ASCOM.NexStar
 {
+    [ComVisible(false)]
     internal class PulseGuide : IDisposable
     {
         private System.Timers.Timer RaTimer = null;

@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 
 namespace ASCOM.NexStar
 {
+    [ComVisible(false)]
     internal static class DriverMath
     {
         private const double MJD = 2400000.5d;

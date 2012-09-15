@@ -8,9 +8,11 @@ using System.Threading;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using ASCOM.DeviceInterface;
+using System.Runtime.InteropServices;
 
 namespace ASCOM.NexStar
 {
+    [ComVisible(false)]
     internal static class Common
     {
 

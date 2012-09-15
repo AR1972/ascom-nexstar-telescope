@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace ASCOM.NexStar
 {
-    [ComVisibleAttribute(false)] /* fixes generic type warning */
+    [ComVisible(false)] /* fixes generic type warning */
     internal class EventArgs<T> : EventArgs
     {
         public EventArgs(T value)
@@ -19,7 +19,7 @@ namespace ASCOM.NexStar
         }
     }
 
-    [ComVisibleAttribute(false)] /* fixes generic type warning */
+    [ComVisible(false)] /* fixes generic type warning */
     internal class EventArgs<Ta, Tb> : EventArgs
     {
         public EventArgs(Ta a, Tb b)
@@ -43,7 +43,7 @@ namespace ASCOM.NexStar
 
     }
 
-    [ComVisibleAttribute(false)] /* fixes generic type warning */
+    [ComVisible(false)] /* fixes generic type warning */
     internal class EventArgs<Ta, Tb, Tc> : EventArgs
     {
         public EventArgs(Ta a, Tb b, Tc c)

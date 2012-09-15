@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 
 namespace ASCOM.NexStar
 {
+    [ComVisible(false)]
     internal class Gps
         /* all methods supported from version 1.6 */
         /* all returned values are UT */

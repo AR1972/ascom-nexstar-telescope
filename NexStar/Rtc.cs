@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Runtime.InteropServices;
 
 namespace ASCOM.NexStar
 {
+    [ComVisible(false)]
     internal class Rtc
         /* get commands are supported from version 1.6 */
         /* set commands are supported from version  3.01 */

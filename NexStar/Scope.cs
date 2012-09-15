@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using ASCOM.DeviceInterface;
 using System.Windows.Forms;
+using System.Runtime.InteropServices;
 
 namespace ASCOM.NexStar
 {
+    [ComVisible(false)]
     internal static class Scope
     /* class to hold the global telescope state variables */
     {

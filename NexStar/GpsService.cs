@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Windows.Forms;
+using System.Runtime.InteropServices;
 
 /* this class monitors the state of the GPS and uses event's to notify recievers of the GPS state/updates */
 /* communication with the GPS device is pretty slow seems to take about 1 sec for each command to complete */
@@ -8,6 +9,7 @@ using System.Windows.Forms;
 
 namespace ASCOM.NexStar
 {
+    [ComVisible(false)]
     internal class GpsService
     {
         Thread t = null;

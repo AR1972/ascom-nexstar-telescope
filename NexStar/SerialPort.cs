@@ -4,9 +4,11 @@ using System.IO.Ports;
 using System.Threading;
 using System.Diagnostics;
 using System.Timers;
+using System.Runtime.InteropServices;
 
 namespace ASCOM.NexStar
 {
+    [ComVisible(false)]
     internal class SerialPort : IDisposable
     {
         private System.IO.Ports.SerialPort sp = null;
