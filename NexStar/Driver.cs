@@ -696,13 +696,13 @@ namespace ASCOM.NexStar
         public void SlewToCoordinates(double RightAscension, double Declination)
         /* done AR */
         {
-            Scope.TargetRa = RightAscension;
-            Scope.TargetDec = Declination;
-            Scope.TargetRaSet = true;
-            Scope.TargetDecSet = true;
+            Common.SetTargetDeclination(Declination);
+            Common.SetTargetRightAscension(RightAscension);
             if (Scope.TargetRaSet && Scope.TargetDecSet)
             {
                 Common.SlewToRaDec(Scope.TargetRa, Scope.TargetDec);
+                Scope.TargetDecSet = false;
+                Scope.TargetRaSet = false;
                 while (Scope.isSlewing)
                 {
                     Thread.Sleep(500);
@@ -714,13 +714,13 @@ namespace ASCOM.NexStar
         public void SlewToCoordinatesAsync(double RightAscension, double Declination)
         /* done AR */
         {
-            Scope.TargetRa = RightAscension;
-            Scope.TargetDec = Declination;
-            Scope.TargetRaSet = true;
-            Scope.TargetDecSet = true;
+            Common.SetTargetDeclination(Declination);
+            Common.SetTargetRightAscension(RightAscension);
             if (Scope.TargetRaSet && Scope.TargetDecSet)
             {
                 Common.SlewToRaDec(Scope.TargetRa, Scope.TargetDec);
+                Scope.TargetDecSet = false;
+                Scope.TargetRaSet = false;
             }
         }
 
@@ -730,6 +730,8 @@ namespace ASCOM.NexStar
             if (Scope.TargetRaSet && Scope.TargetDecSet)
             {
                 Common.SlewToRaDec(Scope.TargetRa, Scope.TargetDec);
+                Scope.TargetDecSet = false;
+                Scope.TargetRaSet = false;
                 while (Scope.isSlewing)
                 {
                     Thread.Sleep(500);
@@ -744,6 +746,8 @@ namespace ASCOM.NexStar
             if (Scope.TargetRaSet && Scope.TargetDecSet)
             {
                 Common.SlewToRaDec(Scope.TargetRa, Scope.TargetDec);
+                Scope.TargetDecSet = false;
+                Scope.TargetRaSet = false;
             }
         }
 
@@ -772,6 +776,8 @@ namespace ASCOM.NexStar
             if (Scope.TargetRaSet && Scope.TargetDecSet)
             {
                 Common.Sync(Scope.TargetRa, Scope.TargetDec);
+                Scope.TargetDecSet = false;
+                Scope.TargetRaSet = false;
             }
         }
 
